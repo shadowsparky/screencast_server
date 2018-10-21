@@ -1,6 +1,8 @@
 package ru.shadowsparky.screencast
 import android.content.Context
+import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
+import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.async
 import ru.shadowsparky.screencast.Utils.Injection
 import java.io.DataInputStream
@@ -15,7 +17,7 @@ class TestServer {
     private lateinit var inStream: DataInputStream
     private lateinit var server: ServerSocket
     private lateinit var client: Socket
-    var Success_Connection: Boolean = false
+    var isSuccess: Boolean = false
         private set
 
     init {
@@ -26,17 +28,22 @@ class TestServer {
                 log.print("connected")
                 outStream = DataOutputStream(client.getOutputStream())
                 inStream = DataInputStream(client.getInputStream())
-                Success_Connection = true
+                isSuccess = true
             } catch(e: Exception) {
                 log.print(e.toString())
             }
         }
     }
 
-    fun getClientMessage() : String = inStream.readUTF()
+    suspend fun getClientMessageAsync() : String {
+        val result = GlobalScope.async { inStream.readUTF() }
+        log.print("MESSAGE HANDLED: ${result.await()}")
+        return result.await()
+    }
 
-    fun sendMessage() {
-        outStream.writeUTF("SENT MESSAGE")
+    fun sendMessageAsync(message: String) = GlobalScope.async {
+        outStream.writeUTF(message)
+        log.print("MESSAGE SENT: $message")
     }
 
     fun dispose() {

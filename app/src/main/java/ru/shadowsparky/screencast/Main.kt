@@ -2,11 +2,8 @@ package ru.shadowsparky.screencast
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.IO
-import kotlinx.coroutines.experimental.async
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.*
 import ru.shadowsparky.screencast.Utils.Injection
 
 class Main : AppCompatActivity() {
@@ -14,22 +11,27 @@ class Main : AppCompatActivity() {
     private val log = Injection.provideLogger()
     private val toast = Injection.provideToaster()
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         button.setOnClickListener {
-            test()
+            GlobalScope.async(Dispatchers.Unconfined) {test()}
         }
     }
 
-    fun test() {
+    suspend fun test() {
         val context = this
-        if (server.Success_Connection) {
-            GlobalScope.async(Dispatchers.IO) {
-                toast.show(context, server.getClientMessage())
-            }
+        if (server.isSuccess) {
+//            toast.show(context, "HANDLED ${server.getClientMessageAsync()}")
+            server.sendMessageAsync("Message: ")
         } else {
             toast.show(context, "Нет соединения с клиентом")
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        server.dispose()
     }
 }
