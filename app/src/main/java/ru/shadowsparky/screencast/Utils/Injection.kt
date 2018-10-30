@@ -1,6 +1,8 @@
 package ru.shadowsparky.screencast.Utils
 
-import ru.shadowsparky.screencast.TestServer
+import ru.shadowsparky.screencast.Main
+import ru.shadowsparky.screencast.MainPresenter
+import ru.shadowsparky.screencast.ProjectionServer
 
 
 class Injection {
@@ -12,11 +14,14 @@ class Injection {
         fun provideLogger() : Logger {
             if (logInstance == null)
                 logInstance = Logger()
+
             return logInstance!!
         }
 
         fun provideToaster() : Toaster = Toaster()
 
-        fun provideServer() : TestServer = TestServer()
+        fun provideServer() : ProjectionServer = ProjectionServer()
+
+        fun provideMainPresenter() : Main.Presenter = MainPresenter()
     }
 }
