@@ -10,7 +10,7 @@ interface Main {
     }
     interface Presenter {
         fun attachView(view: Main.View)
-        fun projectionRequest(data: Intent, callback: Context)
+        fun projectionRequest(data: Intent, context: Context)
     }
     interface Model {
 

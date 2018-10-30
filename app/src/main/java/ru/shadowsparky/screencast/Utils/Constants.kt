@@ -8,5 +8,6 @@ class Constants {
         val DATA = "data"
         val DEFAULT_NOTIFICATION_CHANNEL = "Projection_Channel"
         val DEFAULT_NOTIFICATION_CHANNEL_NAME = "Проецирование на экран"
+        val DEFAULT_NOTIFICATION_ID = 228
     }
 }

@@ -30,8 +30,8 @@ class MainView : AppCompatActivity(), Main.View {
         super.onActivityResult(requestCode, resultCode, data)
         if (requestCode == REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                presenter.projectionRequest(data!!, this)
                 log.printDebug("РАЗРЕШЕНИЕ ВЫДАНО")
+                presenter.projectionRequest(data!!, this)
             } else {
                 log.printError("РАЗРЕШЕНИЕ НЕ БЫЛО ВЫДАНО")
             }
@@ -40,6 +40,7 @@ class MainView : AppCompatActivity(), Main.View {
 
     override fun startServer(server: Intent) {
         startService(server)
+        finish()
         log.printDebug("SERVER STARTED")
     }
 }

@@ -11,10 +11,10 @@ import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_NOTIFICATION
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL_NAME
 
 
-class Notifications(val context: Context) {
+class Notifications(private val context: Context) {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun newNotification(notificationManager: NotificationManager) : Notification {
+    private fun newNotification(notificationManager: NotificationManager) : Notification {
         notificationChannel(notificationManager)
         return NotificationCompat.Builder(context, DEFAULT_NOTIFICATION_CHANNEL)
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
@@ -24,7 +24,7 @@ class Notifications(val context: Context) {
                 .build()
     }
 
-    fun oldNotification() : Notification {
+    private fun oldNotification() : Notification {
         return NotificationCompat.Builder(context)
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
@@ -32,6 +32,13 @@ class Notifications(val context: Context) {
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .build()
     }
+
+    fun provideNotification(notificationManager: NotificationManager) : Notification =
+            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+                newNotification(notificationManager)
+            } else {
+                oldNotification()
+            }
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun notificationChannel(notificationManager: NotificationManager) : NotificationChannel {
