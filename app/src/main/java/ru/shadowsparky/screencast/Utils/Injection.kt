@@ -3,6 +3,7 @@ package ru.shadowsparky.screencast.Utils
 import ru.shadowsparky.screencast.Main
 import ru.shadowsparky.screencast.MainPresenter
 import ru.shadowsparky.screencast.ProjectionServer
+import java.util.concurrent.LinkedBlockingQueue
 
 
 class Injection {
@@ -19,9 +20,8 @@ class Injection {
         }
 
         fun provideToaster() : Toaster = Toaster()
-
         fun provideServer() : ProjectionServer = ProjectionServer()
-
         fun provideMainPresenter() : Main.Presenter = MainPresenter()
+        fun provideByteList() : LinkedBlockingQueue<ByteArray> = LinkedBlockingQueue()
     }
 }

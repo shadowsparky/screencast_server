@@ -10,5 +10,9 @@ class Constants {
         val DEFAULT_NOTIFICATION_CHANNEL = "Projection_Channel"
         val DEFAULT_NOTIFICATION_CHANNEL_NAME = "Проецирование на экран"
         val DEFAULT_NOTIFICATION_ID = 228
+        val DEFAULT_WIDTH = 1280
+        val DEFAULT_HEIGHT = 720
+        val DEFAULT_DPI = 320
+        val DEFAULT_BITRATE = 6144000
     }
 }
