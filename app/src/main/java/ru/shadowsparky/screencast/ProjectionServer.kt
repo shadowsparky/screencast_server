@@ -6,8 +6,6 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Point
-import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
@@ -24,7 +22,6 @@ import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.async
-import ru.shadowsparky.screencast.Utils.Constants
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DATA
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_DPI
@@ -52,11 +49,12 @@ class ProjectionServer : Service() {
     private var mSurface: Surface? = null
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mDisplay: Display? = null
+    private var mHandler: Handler? = null
+    private var mHandlerThread = HandlerThread("CallbackThread")
     private var mCodec: MediaCodec? = null
     private var mFormat: MediaFormat? = null
     private var mCallback: MediaCodec.Callback? = null
-    private val mEncoder = HandlerThread("Encoder")
-    private val mSendingBuffers = Injection.provideByteList()
+    private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
 
 
@@ -69,7 +67,6 @@ class ProjectionServer : Service() {
         val notificationService = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         val notification = Notifications(this).provideNotification(notificationService)
         startForeground(DEFAULT_NOTIFICATION_ID, notification)
-        mEncoder.start()
         startServer()
         return START_NOT_STICKY
     }
@@ -80,14 +77,19 @@ class ProjectionServer : Service() {
         mClientSocket = mServerSocket!!.accept()
         log.printDebug("CONNECTION ACCEPTED")
         mClientStream = DataOutputStream(mClientSocket!!.getOutputStream())
-//        val byteStream = ByteArrayOutputStream()
         startProjection()
-//        while (true) {
-//            val buf = mSendingBuffers.take()
-//            out.write(buf)
-//            log.printDebug("BUFFERS SENDING...")
-//            byteStream.writeTo(mClientStream)
-//        }
+        sendProjectionData()
+    }
+
+    fun sendProjectionData() = GlobalScope.async {
+        val byteOut = ByteArrayOutputStream()
+        val out = DataOutputStream(byteOut)
+        while (true) {
+            val buf = mSendingBuffers.take()
+            out.write(buf)
+            byteOut.writeTo(mClientStream)
+            log.printDebug("Array sent $buf")
+        }
     }
 
     fun startProjection() {
@@ -105,15 +107,10 @@ class ProjectionServer : Service() {
                 try {
                     Thread {
                         val buffer = codec.getOutputBuffer(index)
-                        buffer.position(info.offset)
-                        val buf = ByteArray(2048000)
-                        buffer.get(buf, 0, info.size)
-                        val byteStream = ByteArrayOutputStream()
-                        val out = DataOutputStream(byteStream)
-                        out.write(buf)
-                        byteStream.writeTo(mClientStream)
-                        log.printDebug("buffer: $buf", true)
-//                mSendingBuffers.add(buf)
+                        buffer!!.position(info.offset)
+                        val buf = ByteArray(buffer.remaining())
+                        log.printDebug(buffer.remaining().toString())
+                        mSendingBuffers.add(buf)
                         mCodec!!.releaseOutputBuffer(index, false)
                     }.start()
                 } catch (e: Exception) {
@@ -130,7 +127,7 @@ class ProjectionServer : Service() {
             }
 
             override fun onError(codec: MediaCodec, e: MediaCodec.CodecException) {
-                log.printDebug("OnERror")
+                log.printDebug("OnError")
             }
         }
         mCodec!!.setCallback(mCallback)
