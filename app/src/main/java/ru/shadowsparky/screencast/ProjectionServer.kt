@@ -30,6 +30,7 @@ import ru.shadowsparky.screencast.Utils.Logger
 import ru.shadowsparky.screencast.Utils.Notifications
 import java.io.DataOutputStream
 import java.io.IOException
+import java.lang.NullPointerException
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -88,7 +89,7 @@ class ProjectionServer : Service() {
                     mClientStream!!.flush()
                     log.printDebug("Data sent $data", TAG)
                 } else {
-                    log.printError("CLIENT STREAM IS NULL", TAG)
+                    throw NullPointerException("CLIENT STREAM IS NULL")
                 }
             }
         } catch (e: InterruptedException) {
