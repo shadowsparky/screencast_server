@@ -77,7 +77,6 @@ class ProjectionServer : Service() {
         configureProjection()
         startProjection()
         sendProjectionData()
-        return@async "adsasd"
     }
 
     private fun sendProjectionData() = GlobalScope.async {
