@@ -15,9 +15,7 @@ import android.os.IBinder
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
-import kotlinx.coroutines.experimental.Dispatchers
 import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.IO
 import kotlinx.coroutines.experimental.async
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DATA
 import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_BITRATE
@@ -30,12 +28,10 @@ import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.Utils.Injection
 import ru.shadowsparky.screencast.Utils.Logger
 import ru.shadowsparky.screencast.Utils.Notifications
-import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
-
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
