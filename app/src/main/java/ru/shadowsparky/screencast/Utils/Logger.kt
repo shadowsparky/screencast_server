@@ -7,20 +7,22 @@ import ru.shadowsparky.screencast.Utils.Constants.Companion.TAG
 
 class Logger {
     private fun getThreadName() : String = "THREAD: ${Thread.currentThread().name}"
+
     private fun getMessage(message: String, threadDump: Boolean) : String =
             if (threadDump)
                 "${getThreadName()} $message"
             else
                 message
-    private fun print(priority: Int, message: String) {
+
+    private fun print(priority: Int, message: String, TAG: String = Constants.TAG) {
         Log.println(priority, TAG, message)
     }
 
-    fun printError(message: String, threadDump: Boolean = false) {
+    fun printError(message: String, TAG: String = Constants.TAG, threadDump: Boolean = false) {
         print(ERROR, getMessage(message, threadDump))
     }
 
-    fun printDebug(message: String, threadDump: Boolean = false) {
+    fun printDebug(message: String, TAG: String = Constants.TAG, threadDump: Boolean = false) {
         print(DEBUG, getMessage(message, threadDump))
     }
 }
