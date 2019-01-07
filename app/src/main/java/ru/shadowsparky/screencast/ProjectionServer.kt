@@ -32,6 +32,7 @@ import ru.shadowsparky.screencast.Utils.Logger
 import ru.shadowsparky.screencast.Utils.Notifications
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
+import java.io.IOException
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -60,8 +61,7 @@ class ProjectionServer : Service() {
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         createNotification()
-        val result = startServer().getCompleted()
-        log.printDebug(result)
+        startServer()
         return START_NOT_STICKY
     }
 
@@ -84,14 +84,21 @@ class ProjectionServer : Service() {
     }
 
     private fun sendProjectionData() = GlobalScope.async {
-        val byteOut = ByteArrayOutputStream()
-        val out = DataOutputStream(byteOut)
-        while (true) {
-            val buf = mSendingBuffers.take()
-            out.writeInt(buf.size)
-            out.write(buf)
-            byteOut.writeTo(mClientStream)
-            log.printDebug("Array sent $buf with length = ${buf.size}")
+        try {
+            while (true) {
+                if (mClientStream != null) {
+                    val data = mSendingBuffers.take()
+                    mClientStream!!.write(data)
+                    mClientStream!!.flush()
+                    log.printDebug("Data sent $data", TAG)
+                } else {
+                    log.printError("CLIENT STREAM IS NULL", TAG)
+                }
+            }
+        } catch (e: InterruptedException) {
+            e.printStackTrace()
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
