@@ -51,7 +51,6 @@ class ProjectionServer : Service() {
     private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
 
-
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -72,7 +71,7 @@ class ProjectionServer : Service() {
         mServerSocket = ServerSocket(DEFAULT_PORT)
         log.printDebug("Waiting connection...")
         mClientSocket = mServerSocket!!.accept()
-        log.printDebug("CONNECTION ACCEPTED")
+        log.printDebug("Connection accepted.")
         mClientStream = DataOutputStream(mClientSocket!!.getOutputStream())
         configureProjection()
         startProjection()
@@ -82,14 +81,10 @@ class ProjectionServer : Service() {
     private fun sendProjectionData() = GlobalScope.async {
         try {
             while (true) {
-                if (mClientStream != null) {
-                    val data = mSendingBuffers.take()
-                    mClientStream!!.write(data)
-                    mClientStream!!.flush()
-                    log.printDebug("Data sent $data", TAG)
-                } else {
-                    throw NullPointerException("CLIENT STREAM IS NULL")
-                }
+                val data = mSendingBuffers.take()
+                mClientStream!!.write(data)
+                mClientStream!!.flush()
+                log.printDebug("Data sent $data", TAG)
             }
         } catch (e: InterruptedException) {
             e.printStackTrace()
