@@ -1,20 +1,18 @@
 package ru.shadowsparky.screencast
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.media.projection.MediaProjectionManager
 import android.os.Bundle
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.*
 import ru.shadowsparky.screencast.Utils.Constants.Companion.REQUEST_CODE
 import ru.shadowsparky.screencast.Utils.Injection
 
 class MainView : AppCompatActivity(), Main.View {
     private val log = Injection.provideLogger()
     private val toast = Injection.provideToaster()
+    private val address = Injection.provideIpHandler().getIpv4()
     private val presenter = Injection.provideMainPresenter()
     private lateinit var manager : MediaProjectionManager
 
@@ -22,6 +20,7 @@ class MainView : AppCompatActivity(), Main.View {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         presenter.attachView(this)
+        ipv4.text = address
         manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_CODE)
     }
@@ -33,14 +32,12 @@ class MainView : AppCompatActivity(), Main.View {
                 log.printDebug("РАЗРЕШЕНИЕ ВЫДАНО")
                 presenter.projectionRequest(data!!, this)
             } else {
-                log.printError("РАЗРЕШЕНИЕ НЕ БЫЛО ВЫДАНО")
+                toast.show(this, "Вы не выдали разрешение, я не буду работать.")
             }
         }
     }
 
     override fun startServer(server: Intent) {
         startService(server)
-        finish()
-        log.printDebug("SERVER STARTED")
     }
 }
