@@ -1,5 +1,9 @@
-from subprocess import Popen, PIPE, STDOUT
+#
+# Created by shadowsparky in 2019
+#
+
 import socket
+from subprocess import Popen, PIPE, STDOUT
 
 SERVER_IP = "192.168.43.115"
 SERVER_PORT = 1337 
@@ -17,7 +21,7 @@ def handleReceivedData(sock):
                 data = sock.recv(1024)
                 player.stdin.write(data)
             except: 
-                print 'LOL'
+                print 'An error has occurred...'
     finally:
         sock.close()
     

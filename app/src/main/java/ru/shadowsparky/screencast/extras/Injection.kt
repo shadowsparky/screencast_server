@@ -1,10 +1,13 @@
-package ru.shadowsparky.screencast.Utils
+/*
+ * Created by shadowsparky in 2018
+ */
+
+package ru.shadowsparky.screencast.extras
 
 import ru.shadowsparky.screencast.Main
 import ru.shadowsparky.screencast.MainPresenter
 import ru.shadowsparky.screencast.ProjectionServer
 import java.util.concurrent.LinkedBlockingQueue
-
 
 class Injection {
     companion object {

@@ -1,3 +1,7 @@
+/*
+ * Created by shadowsparky in 2018
+ */
+
 package ru.shadowsparky.screencast
 
 import android.content.Context
@@ -6,8 +10,8 @@ import android.media.projection.MediaProjectionManager
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
-import ru.shadowsparky.screencast.Utils.Constants.Companion.REQUEST_CODE
-import ru.shadowsparky.screencast.Utils.Injection
+import ru.shadowsparky.screencast.extras.Constants.Companion.REQUEST_CODE
+import ru.shadowsparky.screencast.extras.Injection
 
 class MainView : AppCompatActivity(), Main.View {
     private val log = Injection.provideLogger()

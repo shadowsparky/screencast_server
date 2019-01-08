@@ -1,9 +1,12 @@
-package ru.shadowsparky.screencast.Utils
+/*
+ * Created by shadowsparky in 2018
+ */
 
-import ru.shadowsparky.screencast.Utils.Constants.Companion.NOT_FOUND_IPV4
+package ru.shadowsparky.screencast.extras
+
+import ru.shadowsparky.screencast.extras.Constants.Companion.NOT_FOUND_IPV4
 import java.net.Inet4Address
 import java.net.NetworkInterface
-
 
 class IpHandler {
 

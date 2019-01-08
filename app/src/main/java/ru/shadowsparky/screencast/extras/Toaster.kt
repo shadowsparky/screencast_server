@@ -1,10 +1,11 @@
-package ru.shadowsparky.screencast.Utils
+/*
+ * Created by shadowsparky in 2018
+ */
+
+package ru.shadowsparky.screencast.extras
 
 import android.content.Context
 import android.widget.Toast
-import kotlinx.coroutines.experimental.Dispatchers
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
 
 class Toaster {
     fun show(context: Context, message: String) =

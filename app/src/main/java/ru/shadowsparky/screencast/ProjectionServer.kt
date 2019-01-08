@@ -1,3 +1,7 @@
+/*
+ * Created by shadowsparky in 2018
+ */
+
 package ru.shadowsparky.screencast
 
 import android.app.Activity
@@ -17,20 +21,19 @@ import android.view.Surface
 import android.view.WindowManager
 import kotlinx.coroutines.experimental.GlobalScope
 import kotlinx.coroutines.experimental.async
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DATA
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_BITRATE
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_DPI
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_HEIGHT
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_NOTIFICATION_ID
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_PORT
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_PROJECTION_NAME
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_WIDTH
-import ru.shadowsparky.screencast.Utils.Injection
-import ru.shadowsparky.screencast.Utils.Logger
-import ru.shadowsparky.screencast.Utils.Notifications
+import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_ID
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PROJECTION_NAME
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
+import ru.shadowsparky.screencast.extras.Injection
+import ru.shadowsparky.screencast.extras.Logger
+import ru.shadowsparky.screencast.extras.Notifications
 import java.io.DataOutputStream
 import java.io.IOException
-import java.lang.NullPointerException
 import java.net.ServerSocket
 import java.net.Socket
 

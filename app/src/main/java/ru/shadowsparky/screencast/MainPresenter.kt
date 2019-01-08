@@ -1,8 +1,12 @@
+/*
+ * Created by shadowsparky in 2018
+ */
+
 package ru.shadowsparky.screencast
 
 import android.content.Context
 import android.content.Intent
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DATA
+import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
 
 class MainPresenter : Main.Presenter {
     var view: Main.View? = null

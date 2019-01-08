@@ -1,4 +1,8 @@
-package ru.shadowsparky.screencast.Utils
+/*
+ * Created by shadowsparky in 2018
+ */
+
+package ru.shadowsparky.screencast.extras
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -7,8 +11,8 @@ import android.content.Context
 import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL
-import ru.shadowsparky.screencast.Utils.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL_NAME
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL_NAME
 
 
 class Notifications(private val context: Context) {

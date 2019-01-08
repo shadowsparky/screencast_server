@@ -1,9 +1,12 @@
-package ru.shadowsparky.screencast.Utils
+/*
+ * Created by shadowsparky in 2018
+ */
+
+package ru.shadowsparky.screencast.extras
 
 import android.util.Log
 import android.util.Log.DEBUG
 import android.util.Log.ERROR
-import ru.shadowsparky.screencast.Utils.Constants.Companion.TAG
 
 class Logger {
     private fun getThreadName() : String = "THREAD: ${Thread.currentThread().name}"
