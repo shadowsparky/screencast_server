@@ -5,7 +5,7 @@
 import socket
 from subprocess import Popen, PIPE, STDOUT
 
-SERVER_IP = "192.168.43.115"
+SERVER_IP = "192.168.43.115" # IPV4 из приложения. 
 SERVER_PORT = 1337 
 
 def connectToServer(): 
