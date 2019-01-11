@@ -1,4 +1,6 @@
 package ru.shadowsparky.screencast
 
-class TransferByteArray {
-}
+class TransferByteArray(
+    val data: ByteArray,
+    val length: Int
+)

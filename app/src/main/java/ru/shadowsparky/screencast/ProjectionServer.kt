@@ -32,6 +32,7 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
+import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.ServerSocket
@@ -85,8 +86,13 @@ class ProjectionServer : Service() {
         try {
             while (true) {
                 val data = mSendingBuffers.take()
-                mClientStream!!.write(data)
-                mClientStream!!.flush()
+                val byteStream = ByteArrayOutputStream()
+//                mClientStream!!.writeInt(data.len?gth)
+                byteStream.write(data.data)
+                byteStream.flush()
+                byteStream.writeTo(mClientStream)
+//                mClientStream!!.write(data)
+//                mClientStream!!.flush()
                 log.printDebug("Data sent $data", TAG)
             }
         } catch (e: InterruptedException) {

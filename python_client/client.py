@@ -5,7 +5,7 @@
 import socket
 from subprocess import Popen, PIPE, STDOUT
 
-SERVER_IP = "192.168.43.115" # IPV4 из приложения. 
+SERVER_IP = "192.168.43.78" # IPV4 from android app 
 SERVER_PORT = 1337 
 
 def connectToServer(): 
@@ -14,7 +14,7 @@ def connectToServer():
     handleReceivedData(sock)
 
 def handleReceivedData(sock): 
-    player = Popen(['ffplay', '-framerate', '60', '-'], stdin=PIPE, stdout=PIPE)
+    player = Popen(['ffplay', '-framerate', '60', '-window_title', 'Supreme Original Content', '-'], stdin=PIPE, stdout=PIPE)
     try:
         while True: 
             try:
@@ -22,6 +22,7 @@ def handleReceivedData(sock):
                 player.stdin.write(data)
             except: 
                 print 'An error has occurred...'
+                return
     finally:
         sock.close()
     
