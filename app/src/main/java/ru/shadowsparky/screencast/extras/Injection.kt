@@ -4,10 +4,9 @@
 
 package ru.shadowsparky.screencast.extras
 
-import ru.shadowsparky.screencast.Main
-import ru.shadowsparky.screencast.MainPresenter
-import ru.shadowsparky.screencast.ProjectionServer
-import ru.shadowsparky.screencast.TransferByteArray
+import ru.shadowsparky.screencast.*
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
+import java.net.InetSocketAddress
 import java.util.concurrent.LinkedBlockingQueue
 
 class Injection {
@@ -22,6 +21,8 @@ class Injection {
 
             return logInstance!!
         }
+
+        fun provideJSServer() : Server = Server(InetSocketAddress(provideIpHandler().getIpv4(), DEFAULT_PORT + 9    ))
 
         fun provideToaster() : Toaster = Toaster()
         fun provideServer() : ProjectionServer = ProjectionServer()

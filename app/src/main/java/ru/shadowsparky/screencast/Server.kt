@@ -11,7 +11,7 @@ class Server(addr: InetSocketAddress) : WebSocketServer(addr) {
     private val TAG = javaClass.name
     private val clients = HashSet<WebSocket>()
 
-    fun test(): Boolean? {
+    fun isConnected(): Boolean {
         for (client in clients) {
             if (client.isOpen)
                 return true

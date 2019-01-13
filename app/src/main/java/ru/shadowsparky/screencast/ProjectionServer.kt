@@ -32,20 +32,22 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
+import java.io.BufferedOutputStream
 import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
     private lateinit var mProjectionManager: MediaProjectionManager
-    private val TAG = javaClass.name
+    private val TAG = "ProjectionServer"
     private var mProjection: MediaProjection? = null
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
-    private var mClientStream: DataOutputStream? = null
+    private var mClientStream: BufferedOutputStream? = null
     private var mSurface: Surface? = null
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mDisplay: Display? = null
@@ -54,6 +56,7 @@ class ProjectionServer : Service() {
     private var mCallback: MediaCodec.Callback? = null
     private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
+    private val server = Injection.provideJSServer()
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -73,10 +76,10 @@ class ProjectionServer : Service() {
 
     private fun startServer() = GlobalScope.async {
         mServerSocket = ServerSocket(DEFAULT_PORT)
-        log.printDebug("Waiting connection...")
+        log.printDebug("Waiting connection...", TAG)
         mClientSocket = mServerSocket!!.accept()
-        log.printDebug("Connection accepted.")
-        mClientStream = DataOutputStream(mClientSocket!!.getOutputStream())
+        log.printDebug("Connection accepted.", TAG)
+        mClientStream = BufferedOutputStream(mClientSocket!!.getOutputStream())
         configureProjection()
         startProjection()
         sendProjectionData()
@@ -84,19 +87,11 @@ class ProjectionServer : Service() {
 
     private fun sendProjectionData() = GlobalScope.async {
         try {
-            val byteStream = ByteArrayOutputStream()
-            val out = DataOutputStream(byteStream)
+            log.printDebug("Test...", TAG)
             while (true) {
                 val data = mSendingBuffers.take()
-                byteStream.reset()
-                out.write(data.data)
-                byteStream.writeTo(mClientStream)
-//                mClientStream!!.writeInt(data.len?gth)
-//                byteStream.write(data.data)
-//                byteStream.flush()
-//                byteStream.writeTo(mClientStream)
-//                mClientStream!!.write(data)
-//                mClientStream!!.flush()
+                log.printDebug("Data take: $data")
+                mClientStream!!.write(data.data, 0, data.length)
                 log.printDebug("Data sent $data", TAG)
             }
         } catch (e: InterruptedException) {

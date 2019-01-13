@@ -21,11 +21,11 @@ class Logger {
         Log.println(priority, TAG, message)
     }
 
-    fun printError(message: String, TAG: String = Constants.TAG, threadDump: Boolean = false) {
+    fun printError(message: String, XTAG: String = Constants.TAG, threadDump: Boolean = false) {
         print(ERROR, getMessage(message, threadDump))
     }
 
-    fun printDebug(message: String, TAG: String = Constants.TAG, threadDump: Boolean = false) {
+    fun printDebug(message: String, XTAG: String = Constants.TAG, threadDump: Boolean = false) {
         print(DEBUG, getMessage(message, threadDump))
     }
 }
