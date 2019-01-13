@@ -5,7 +5,7 @@
 import socket
 from subprocess import Popen, PIPE, STDOUT
 
-SERVER_IP = "192.168.43.78" # IPV4 from android app 
+SERVER_IP = "192.168.31.221" # IPV4 from android app 
 SERVER_PORT = 1337 
 
 def connectToServer(): 

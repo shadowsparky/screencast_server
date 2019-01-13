@@ -84,13 +84,17 @@ class ProjectionServer : Service() {
 
     private fun sendProjectionData() = GlobalScope.async {
         try {
+            val byteStream = ByteArrayOutputStream()
+            val out = DataOutputStream(byteStream)
             while (true) {
                 val data = mSendingBuffers.take()
-                val byteStream = ByteArrayOutputStream()
-//                mClientStream!!.writeInt(data.len?gth)
-                byteStream.write(data.data)
-                byteStream.flush()
+                byteStream.reset()
+                out.write(data.data)
                 byteStream.writeTo(mClientStream)
+//                mClientStream!!.writeInt(data.len?gth)
+//                byteStream.write(data.data)
+//                byteStream.flush()
+//                byteStream.writeTo(mClientStream)
 //                mClientStream!!.write(data)
 //                mClientStream!!.flush()
                 log.printDebug("Data sent $data", TAG)
