@@ -9,6 +9,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.graphics.Point
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
@@ -18,9 +19,8 @@ import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.view.Display
 import android.view.Surface
+import android.view.View.MeasureSpec.getSize
 import android.view.WindowManager
-import kotlinx.coroutines.experimental.GlobalScope
-import kotlinx.coroutines.experimental.async
 import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
@@ -32,11 +32,10 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
+import ru.shadowsparky.screencast.extras.Utils
 import java.io.BufferedOutputStream
-import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
-import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -56,7 +55,7 @@ class ProjectionServer : Service() {
     private var mCallback: MediaCodec.Callback? = null
     private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
-    private val server = Injection.provideJSServer()
+    private val mUtils: Utils = Injection.provideUtils()
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -74,7 +73,7 @@ class ProjectionServer : Service() {
         startForeground(DEFAULT_NOTIFICATION_ID, notification)
     }
 
-    private fun startServer() = GlobalScope.async {
+    private fun startServer() = Thread {
         mServerSocket = ServerSocket(DEFAULT_PORT)
         log.printDebug("Waiting connection...", TAG)
         mClientSocket = mServerSocket!!.accept()
@@ -83,32 +82,38 @@ class ProjectionServer : Service() {
         configureProjection()
         startProjection()
         sendProjectionData()
-    }
+    }.start()
 
-    private fun sendProjectionData() = GlobalScope.async {
+    private fun sendProjectionData() = Thread {
         try {
-            log.printDebug("Test...", TAG)
+            log.printDebug("Data sending...", TAG)
             while (true) {
                 val data = mSendingBuffers.take()
-                log.printDebug("Data take: $data")
+                data.replaceBytes()
+//                log.printDebug("Data take: $data")
+    //                mClientStream!!.write(data.length)
+//                mClientSizeStream!!.writeInt(data.length)
                 mClientStream!!.write(data.data, 0, data.length)
-                log.printDebug("Data sent $data", TAG)
+                log.printDebug("Data sent: ${data.data} with length: ${data.length}")
+//                log.printDebug("Data sent $data", TAG)
             }
         } catch (e: InterruptedException) {
             e.printStackTrace()
         } catch (e: IOException) {
             e.printStackTrace()
         }
-    }
+    }.start()
 
     private fun configureProjection() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, DEFAULT_WIDTH, DEFAULT_HEIGHT)
+        val size = Point()
+        mUtils.overrideGetSize(mDisplay!!, size)
+        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, size.x, size.y)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mDisplay!!.refreshRate)
-        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 60)
         mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
         mCallback = ProjectionCallback(mSendingBuffers, mCodec!!)
         mCodec!!.setCallback(mCallback)

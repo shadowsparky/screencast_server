@@ -26,6 +26,7 @@ class Injection {
 
         fun provideToaster() : Toaster = Toaster()
         fun provideServer() : ProjectionServer = ProjectionServer()
+        fun provideUtils() : Utils = Utils()
         fun provideMainPresenter() : Main.Presenter = MainPresenter()
         fun provideByteQueue() : LinkedBlockingQueue<TransferByteArray> = LinkedBlockingQueue()
     }
