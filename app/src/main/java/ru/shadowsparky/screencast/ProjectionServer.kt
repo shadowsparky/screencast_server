@@ -34,6 +34,7 @@ import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
 import ru.shadowsparky.screencast.extras.Utils
 import java.io.BufferedOutputStream
+import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
 import java.net.ServerSocket
@@ -46,7 +47,8 @@ class ProjectionServer : Service() {
     private var mProjection: MediaProjection? = null
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
-    private var mClientStream: BufferedOutputStream? = null
+    private var mClientStream: DataOutputStream? = null
+    private var mClientBytes: BufferedOutputStream? = null
     private var mSurface: Surface? = null
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mDisplay: Display? = null
@@ -78,7 +80,8 @@ class ProjectionServer : Service() {
         log.printDebug("Waiting connection...", TAG)
         mClientSocket = mServerSocket!!.accept()
         log.printDebug("Connection accepted.", TAG)
-        mClientStream = BufferedOutputStream(mClientSocket!!.getOutputStream())
+        mClientStream = DataOutputStream(mClientSocket!!.getOutputStream())
+        mClientBytes = BufferedOutputStream(mClientSocket!!.getOutputStream())
         configureProjection()
         startProjection()
         sendProjectionData()
@@ -87,15 +90,29 @@ class ProjectionServer : Service() {
     private fun sendProjectionData() = Thread {
         try {
             log.printDebug("Data sending...", TAG)
+//            val obuf = ByteArrayOutputStream()
+//            val out = DataOutputStream(obuf)
+            mClientSocket!!.tcpNoDelay = true
             while (true) {
                 val data = mSendingBuffers.take()
-                data.replaceBytes()
-//                log.printDebug("Data take: $data")
-    //                mClientStream!!.write(data.length)
-//                mClientSizeStream!!.writeInt(data.length)
-                mClientStream!!.write(data.data, 0, data.length)
+                if (data.length > 0) {
+                    mClientStream!!.writeInt(data.length)
+                    mClientStream!!.write(data.data)
+                }
+//                mClientBytes!!.write(data.data)
+                Thread.sleep(1000)
+//                data.replaceBytes()
+//                data.data[data.data.size - 1] = '1'.toByte();
+//                data.data.toMutableList().add('1'.toInt().toByte())
+//                mClientStream!!.write(data.data, 0, data.length)
+//                mClientStream!!.flush()
+//                obuf.reset()
+//                val obuf = ByteArrayOutputStream()
+//                val out = DataOutputStream(obuf)
+//                out.writeInt(data.length)
+//                out.write(data.data)
+//                obuf.writeTo(mClientStream)
                 log.printDebug("Data sent: ${data.data} with length: ${data.length}")
-//                log.printDebug("Data sent $data", TAG)
             }
         } catch (e: InterruptedException) {
             e.printStackTrace()

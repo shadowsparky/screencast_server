@@ -11,6 +11,7 @@ class Constants {
         val REQUEST_CODE = 77
         val DATA = "data"
         val DEFAULT_PORT = 1337
+        val DEFAULT_PORT_2 = 1488
         val DEFAULT_NOTIFICATION_CHANNEL = "Projection_Channel"
         val DEFAULT_NOTIFICATION_CHANNEL_NAME = "Проецирование на экран"
         val DEFAULT_NOTIFICATION_ID = 228

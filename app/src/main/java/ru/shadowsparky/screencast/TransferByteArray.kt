@@ -5,9 +5,9 @@ class TransferByteArray(
     val length: Int
 ) {
     fun replaceBytes() {
-        while(data.toList().contains('1'.toByte())){
+        while(data.toList().contains('1'.toByte())) {
             val index = data.toMutableList().indexOf('1'.toByte())
-            data.toMutableList()[index] = "12".toByte()
+            data[index] = "12".toByte()
         }
     }
 }
