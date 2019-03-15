@@ -19,7 +19,6 @@ import android.media.projection.MediaProjectionManager
 import android.os.IBinder
 import android.view.Display
 import android.view.Surface
-import android.view.View.MeasureSpec.getSize
 import android.view.WindowManager
 import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
@@ -34,11 +33,12 @@ import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
 import ru.shadowsparky.screencast.extras.Utils
 import java.io.BufferedOutputStream
-import java.io.ByteArrayOutputStream
 import java.io.DataOutputStream
 import java.io.IOException
+import java.io.ObjectOutputStream
 import java.net.ServerSocket
 import java.net.Socket
+
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
@@ -47,8 +47,8 @@ class ProjectionServer : Service() {
     private var mProjection: MediaProjection? = null
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
-    private var mClientStream: DataOutputStream? = null
-    private var mClientBytes: BufferedOutputStream? = null
+    private var mClientStream: ObjectOutputStream? = null
+//    private var mClientBytes: BufferedOutputStream? = null
     private var mSurface: Surface? = null
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mDisplay: Display? = null
@@ -80,8 +80,8 @@ class ProjectionServer : Service() {
         log.printDebug("Waiting connection...", TAG)
         mClientSocket = mServerSocket!!.accept()
         log.printDebug("Connection accepted.", TAG)
-        mClientStream = DataOutputStream(mClientSocket!!.getOutputStream())
-        mClientBytes = BufferedOutputStream(mClientSocket!!.getOutputStream())
+        mClientStream = ObjectOutputStream(mClientSocket!!.getOutputStream())
+//        mClientBytes = BufferedOutputStream(mClientSocket!!.getOutputStream())
         configureProjection()
         startProjection()
         sendProjectionData()
@@ -90,28 +90,11 @@ class ProjectionServer : Service() {
     private fun sendProjectionData() = Thread {
         try {
             log.printDebug("Data sending...", TAG)
-//            val obuf = ByteArrayOutputStream()
-//            val out = DataOutputStream(obuf)
             mClientSocket!!.tcpNoDelay = true
             while (true) {
                 val data = mSendingBuffers.take()
-                if (data.length > 0) {
-                    mClientStream!!.writeInt(data.length)
-                    mClientStream!!.write(data.data)
-                }
-//                mClientBytes!!.write(data.data)
-                Thread.sleep(1000)
-//                data.replaceBytes()
-//                data.data[data.data.size - 1] = '1'.toByte();
-//                data.data.toMutableList().add('1'.toInt().toByte())
-//                mClientStream!!.write(data.data, 0, data.length)
-//                mClientStream!!.flush()
-//                obuf.reset()
-//                val obuf = ByteArrayOutputStream()
-//                val out = DataOutputStream(obuf)
-//                out.writeInt(data.length)
-//                out.write(data.data)
-//                obuf.writeTo(mClientStream)
+                mClientStream!!.writeObject(data)
+                mClientStream!!.flush()
                 log.printDebug("Data sent: ${data.data} with length: ${data.length}")
             }
         } catch (e: InterruptedException) {
