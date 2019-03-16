@@ -109,7 +109,7 @@ class ProjectionServer : Service() {
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val size = Point()
         mUtils.overrideGetSize(mDisplay!!, size)
-        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, size.x, size.y)
+        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, size.y, size.x)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mDisplay!!.refreshRate)

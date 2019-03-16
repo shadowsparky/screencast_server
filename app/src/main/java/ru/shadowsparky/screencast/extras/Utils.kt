@@ -4,13 +4,9 @@
 
 package ru.shadowsparky.screencast.extras
 
-import android.opengl.ETC1.getHeight
-import android.R.attr.y
-import android.opengl.ETC1.getWidth
-import android.R.attr.x
 import android.graphics.Point
 import android.view.Display
-
+import java.io.ByteArrayInputStream
 
 
 class Utils {

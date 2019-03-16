@@ -16,6 +16,7 @@ class Server(addr: InetSocketAddress) : WebSocketServer(addr) {
             if (client.isOpen)
                 return true
         }
+
         return false
     }
 
