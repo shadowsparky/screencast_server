@@ -24,10 +24,12 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT_2
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PROJECTION_NAME
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
+import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH_2
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
@@ -49,6 +51,8 @@ class ProjectionServer : Service() {
     private var mClientSocket: Socket? = null
     private var mClientStream: ObjectOutputStream? = null
 //    private var mClientBytes: BufferedOutputStream? = null
+    private var width = DEFAULT_WIDTH
+    private var height = DEFAULT_HEIGHT
     private var mSurface: Surface? = null
     private var mVirtualDisplay: VirtualDisplay? = null
     private var mDisplay: Display? = null
@@ -91,6 +95,8 @@ class ProjectionServer : Service() {
         try {
             log.printDebug("Data sending...", TAG)
             mClientSocket!!.tcpNoDelay = true
+            mClientStream!!.writeObject(PreparingData(width, height))
+            mClientStream!!.flush()
             while (true) {
                 val data = mSendingBuffers.take()
                 mClientStream!!.writeObject(data)
@@ -109,7 +115,9 @@ class ProjectionServer : Service() {
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val size = Point()
         mUtils.overrideGetSize(mDisplay!!, size)
-        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, size.y, size.x)
+        width = size.x
+        height = size.y
+        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mDisplay!!.refreshRate)
@@ -123,6 +131,6 @@ class ProjectionServer : Service() {
 
     private fun startProjection() {
         mCodec!!.start()
-        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, DEFAULT_WIDTH, DEFAULT_HEIGHT, DEFAULT_DPI, 0, mSurface, null, null)
+        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
     }
 }
