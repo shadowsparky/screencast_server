@@ -25,7 +25,19 @@ class MainView : AppCompatActivity(), Main.View {
         setContentView(R.layout.activity_main)
         presenter.attachView(this)
         ipv4.text = address
+        capRequest.setOnClickListener { sendCaptureRequest() }
         manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+    }
+
+    override fun print(message: String) {
+        status.text = message
+    }
+
+    override fun showToast(message: String) {
+        toast.show(this, message)
+    }
+
+    override fun sendCaptureRequest() {
         startActivityForResult(manager.createScreenCaptureIntent(), REQUEST_CODE)
     }
 

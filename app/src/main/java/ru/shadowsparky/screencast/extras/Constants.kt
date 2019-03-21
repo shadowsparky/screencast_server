@@ -10,6 +10,7 @@ class Constants {
         val TAG = "MAIN_TAG"
         val REQUEST_CODE = 77
         val DATA = "data"
+        val VIEW = "view"
         val DEFAULT_PORT = 1337
         val DEFAULT_PORT_2 = 1488
         val DEFAULT_NOTIFICATION_CHANNEL = "Projection_Channel"

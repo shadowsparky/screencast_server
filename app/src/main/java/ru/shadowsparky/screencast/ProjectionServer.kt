@@ -5,6 +5,7 @@
 package ru.shadowsparky.screencast
 
 import android.app.Activity
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
@@ -30,16 +31,16 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PROJECTION_NAME
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH_2
+import ru.shadowsparky.screencast.extras.Constants.Companion.VIEW
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.Logger
 import ru.shadowsparky.screencast.extras.Notifications
 import ru.shadowsparky.screencast.extras.Utils
-import java.io.BufferedOutputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.ObjectOutputStream
+import java.io.*
+import java.lang.RuntimeException
 import java.net.ServerSocket
 import java.net.Socket
+import java.net.SocketTimeoutException
 
 
 class ProjectionServer : Service() {
@@ -50,7 +51,6 @@ class ProjectionServer : Service() {
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
     private var mClientStream: ObjectOutputStream? = null
-//    private var mClientBytes: BufferedOutputStream? = null
     private var width = DEFAULT_WIDTH
     private var height = DEFAULT_HEIGHT
     private var mSurface: Surface? = null
@@ -62,6 +62,36 @@ class ProjectionServer : Service() {
     private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
     private val mUtils: Utils = Injection.provideUtils()
+    private var notification: Notification? = null
+    private var handling: Boolean = false
+        set(value) {
+            if (value) {
+                log.printDebug("Handling enabled")
+            } else {
+                log.printDebug("Handling disabled")
+                socketSafeClosing()
+                clientSocketSafeClosing()
+                mCodec?.stop()
+                this.stopSelf()
+            }
+            field = value
+        }
+
+    private fun socketSafeClosing() {
+        if (mServerSocket != null) {
+            if (!mServerSocket!!.isClosed) {
+                mServerSocket!!.close()
+            }
+        }
+    }
+
+    private fun clientSocketSafeClosing() {
+        if (mClientSocket != null) {
+            if (!mClientSocket!!.isClosed) {
+                mClientSocket!!.close()
+            }
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -75,38 +105,59 @@ class ProjectionServer : Service() {
 
     private fun createNotification() {
         val notificationService = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        val notification = Notifications(this).provideNotification(notificationService)
+        notification = Notifications(this).provideNotification(notificationService)
         startForeground(DEFAULT_NOTIFICATION_ID, notification)
     }
 
     private fun startServer() = Thread {
         mServerSocket = ServerSocket(DEFAULT_PORT)
+        mServerSocket!!.soTimeout = 30000
         log.printDebug("Waiting connection...", TAG)
-        mClientSocket = mServerSocket!!.accept()
+        try {
+            mClientSocket = mServerSocket!!.accept()
+        } catch (e: SocketTimeoutException) {
+            handling = false
+            log.printDebug("SocketTimeoutException")
+            return@Thread
+        }
         log.printDebug("Connection accepted.", TAG)
-        mClientStream = ObjectOutputStream(mClientSocket!!.getOutputStream())
-//        mClientBytes = BufferedOutputStream(mClientSocket!!.getOutputStream())
+        mClientStream = ObjectOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
         configureProjection()
         startProjection()
         sendProjectionData()
     }.start()
 
+    override fun onDestroy() {
+        super.onDestroy()
+//        sendDisableConnectionRequest()
+    }
+
+    private fun sendProjectionInfo() {
+        mClientStream!!.writeObject(PreparingData(width, height))
+        mClientStream!!.flush()
+    }
+
+
     private fun sendProjectionData() = Thread {
         try {
+            sendProjectionInfo()
             log.printDebug("Data sending...", TAG)
             mClientSocket!!.tcpNoDelay = true
-            mClientStream!!.writeObject(PreparingData(width, height))
-            mClientStream!!.flush()
-            while (true) {
+            handling = true
+            while (handling) {
                 val data = mSendingBuffers.take()
                 mClientStream!!.writeObject(data)
+                log.printDebug("Writing object... ${data.length}")
                 mClientStream!!.flush()
-                log.printDebug("Data sent: ${data.data} with length: ${data.length}")
             }
         } catch (e: InterruptedException) {
-            e.printStackTrace()
+            log.printError("InterruptedException")
+            handling = false
+            return@Thread
         } catch (e: IOException) {
-            e.printStackTrace()
+            handling = false
+            log.printError("IOException")
+            return@Thread
         }
     }.start()
 

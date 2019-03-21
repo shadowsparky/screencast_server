@@ -6,10 +6,14 @@ package ru.shadowsparky.screencast
 
 import android.content.Context
 import android.content.Intent
+import java.io.Serializable
 
 interface Main {
     interface View {
         fun startServer(server: Intent)
+        fun print(message: String)
+        fun showToast(message: String)
+        fun sendCaptureRequest()
     }
     interface Presenter {
         fun attachView(view: Main.View)
