@@ -21,6 +21,9 @@ import android.os.IBinder
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.extras.Constants.Companion.ACTION
 import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_CLOSED_CODE
@@ -40,6 +43,7 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CO
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
+import java.net.BindException
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
@@ -98,6 +102,7 @@ class ProjectionServer : Service() {
     private fun socketSafeClosing() {
         if (mServerSocket != null) {
             if (!mServerSocket!!.isClosed) {
+                mClientStream?.close()
                 mServerSocket!!.close()
             }
         }
@@ -127,8 +132,14 @@ class ProjectionServer : Service() {
         startForeground(DEFAULT_NOTIFICATION_ID, notification)
     }
 
-    private fun startServer() = Thread {
-        mServerSocket = ServerSocket(DEFAULT_PORT)
+    private fun startServer() = GlobalScope.launch(Dispatchers.IO)  {
+        try {
+            mServerSocket = ServerSocket(DEFAULT_PORT)
+        } catch (e: BindException) {
+            reason = "Данный адрес уже используется"
+            handling = false
+            return@launch
+        }
         mServerSocket!!.soTimeout = 30000
         log.printDebug("Waiting connection...", TAG)
         try {
@@ -137,14 +148,14 @@ class ProjectionServer : Service() {
             reason = "Превышено время ожидания подключения"
             handling = false
             log.printDebug("SocketTimeoutException")
-            return@Thread
+            return@launch
         }
         log.printDebug("Connection accepted.", TAG)
         mClientStream = ObjectOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
         configureProjection()
         startProjection()
         sendProjectionData()
-    }.start()
+    }
 
     override fun onDestroy() {
         super.onDestroy()
@@ -157,7 +168,7 @@ class ProjectionServer : Service() {
     }
 
 
-    private fun sendProjectionData() = Thread {
+    private fun sendProjectionData() = GlobalScope.launch(Dispatchers.IO) {
         try {
             sendProjectionInfo()
             log.printDebug("Data sending...", TAG)
@@ -172,11 +183,11 @@ class ProjectionServer : Service() {
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
             handling = false
-            return@Thread
+            return@launch
         } catch (e: IOException) {
             handling = false
             log.printError("IOException")
-            return@Thread
+            return@launch
         }
     }.start()
 
@@ -184,9 +195,9 @@ class ProjectionServer : Service() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val size = Point()
-//        mUtils.overrideGetSize(mDisplay!!, size)
-//        width = size.x
-//        height = size.y
+        mUtils.overrideGetSize(mDisplay!!, size)
+        width = size.x
+        height = size.y
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
