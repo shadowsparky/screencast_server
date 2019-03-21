@@ -21,23 +21,25 @@ import android.os.IBinder
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
+import ru.shadowsparky.screencast.extras.*
+import ru.shadowsparky.screencast.extras.Constants.Companion.ACTION
+import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_CLOSED_CODE
+import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_STARTED_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT_2
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PROJECTION_NAME
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH_2
-import ru.shadowsparky.screencast.extras.Constants.Companion.VIEW
-import ru.shadowsparky.screencast.extras.Injection
-import ru.shadowsparky.screencast.extras.Logger
-import ru.shadowsparky.screencast.extras.Notifications
-import ru.shadowsparky.screencast.extras.Utils
-import java.io.*
-import java.lang.RuntimeException
+import ru.shadowsparky.screencast.extras.Constants.Companion.NOTHING
+import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
+import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
+import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
+import java.io.BufferedOutputStream
+import java.io.IOException
+import java.io.ObjectOutputStream
 import java.net.ServerSocket
 import java.net.Socket
 import java.net.SocketTimeoutException
@@ -63,11 +65,23 @@ class ProjectionServer : Service() {
     private val log: Logger = Injection.provideLogger()
     private val mUtils: Utils = Injection.provideUtils()
     private var notification: Notification? = null
+    private var reason = NOTHING
+    private var broadcast: Intent? = null
     private var handling: Boolean = false
         set(value) {
             if (value) {
+                initBroadcast()
+                broadcast!!.putExtra(RECEIVER_CODE, RECEIVER_DEFAULT_CODE)
+                broadcast!!.putExtra(ACTION, CONNECTION_STARTED_CODE)
+                sendBroadcast(broadcast!!)
                 log.printDebug("Handling enabled")
             } else {
+                initBroadcast()
+                broadcast!!.putExtra(RECEIVER_CODE, RECEIVER_DEFAULT_CODE)
+                broadcast!!.putExtra(ACTION, CONNECTION_CLOSED_CODE)
+                broadcast!!.putExtra(REASON, reason)
+                sendBroadcast(broadcast!!)
+                reason = NOTHING
                 log.printDebug("Handling disabled")
                 socketSafeClosing()
                 clientSocketSafeClosing()
@@ -76,6 +90,10 @@ class ProjectionServer : Service() {
             }
             field = value
         }
+
+    private fun initBroadcast() {
+        broadcast = Intent(Constants.BROADCAST_ACTION)
+    }
 
     private fun socketSafeClosing() {
         if (mServerSocket != null) {
@@ -116,6 +134,7 @@ class ProjectionServer : Service() {
         try {
             mClientSocket = mServerSocket!!.accept()
         } catch (e: SocketTimeoutException) {
+            reason = "Превышено время ожидания подключения"
             handling = false
             log.printDebug("SocketTimeoutException")
             return@Thread
@@ -165,9 +184,9 @@ class ProjectionServer : Service() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val size = Point()
-        mUtils.overrideGetSize(mDisplay!!, size)
-        width = size.x
-        height = size.y
+//        mUtils.overrideGetSize(mDisplay!!, size)
+//        width = size.x
+//        height = size.y
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)

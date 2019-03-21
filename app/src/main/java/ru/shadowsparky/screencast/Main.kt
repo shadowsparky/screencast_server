@@ -14,6 +14,7 @@ interface Main {
         fun print(message: String)
         fun showToast(message: String)
         fun sendCaptureRequest()
+        fun setLocking(flag: Boolean)
     }
     interface Presenter {
         fun attachView(view: Main.View)

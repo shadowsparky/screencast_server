@@ -11,6 +11,14 @@ class Constants {
         val REQUEST_CODE = 77
         val DATA = "data"
         val VIEW = "view"
+        val CONNECTION_STARTED_CODE = 1
+        val CONNECTION_CLOSED_CODE = 2
+        val RECEIVER_DEFAULT_CODE = 43
+        val NOTHING = "nothing"
+        val REASON = "reason"
+        val RECEIVER_CODE = "code"
+        val ACTION = "action"
+        val BROADCAST_ACTION  = "default broadcast action =)"
         val DEFAULT_PORT = 1337
         val DEFAULT_PORT_2 = 1488
         val DEFAULT_NOTIFICATION_CHANNEL = "Projection_Channel"
