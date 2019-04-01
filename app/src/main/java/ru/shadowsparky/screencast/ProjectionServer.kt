@@ -43,10 +43,7 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CO
 import java.io.BufferedOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
-import java.net.BindException
-import java.net.ServerSocket
-import java.net.Socket
-import java.net.SocketTimeoutException
+import java.net.*
 
 
 class ProjectionServer : Service() {
@@ -100,19 +97,26 @@ class ProjectionServer : Service() {
     }
 
     private fun socketSafeClosing() {
-        if (mServerSocket != null) {
-            if (!mServerSocket!!.isClosed) {
-                mClientStream?.close()
-                mServerSocket!!.close()
+        try {
+            if (mServerSocket != null) {
+                if (!mServerSocket!!.isClosed) {
+                    mServerSocket!!.close()
+                }
             }
+        } catch (e: SocketException) {
+            log.printDebug("Socket exception in Socket Safe Closing")
         }
     }
 
     private fun clientSocketSafeClosing() {
-        if (mClientSocket != null) {
-            if (!mClientSocket!!.isClosed) {
-                mClientSocket!!.close()
+        try {
+            if (mClientSocket != null) {
+                if (!mClientSocket!!.isClosed) {
+                    mClientSocket!!.close()
+                }
             }
+        } catch (e: SocketException) {
+            log.printDebug("Socket exception in Socket Safe Closing")
         }
     }
 
@@ -135,6 +139,7 @@ class ProjectionServer : Service() {
     private fun startServer() = GlobalScope.launch(Dispatchers.IO)  {
         try {
             mServerSocket = ServerSocket(DEFAULT_PORT)
+            log.printDebug("${InetAddress.getByName("localhost")}", TAG)
         } catch (e: BindException) {
             reason = "Данный адрес уже используется"
             handling = false
@@ -176,9 +181,9 @@ class ProjectionServer : Service() {
             handling = true
             while (handling) {
                 val data = mSendingBuffers.take()
+                mClientStream!!.flush()
                 mClientStream!!.writeObject(data)
                 log.printDebug("Writing object... ${data.length}")
-                mClientStream!!.flush()
             }
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
