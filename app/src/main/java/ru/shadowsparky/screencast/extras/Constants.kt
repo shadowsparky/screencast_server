@@ -29,7 +29,7 @@ class Constants {
         val DEFAULT_HEIGHT_2 = 1080
         val DEFAULT_HEIGHT = 720
         val DEFAULT_DPI = 320
-        val DEFAULT_BITRATE = 100000000
+        val DEFAULT_BITRATE = 680000
         val DEFAULT_PROJECTION_NAME = "Проецирование <Без Обид>"
     }
 }

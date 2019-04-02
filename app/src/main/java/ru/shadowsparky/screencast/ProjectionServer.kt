@@ -41,6 +41,7 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
 import java.io.BufferedOutputStream
+import java.io.DataOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
 import java.net.*
@@ -54,6 +55,7 @@ class ProjectionServer : Service() {
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
     private var mClientStream: ObjectOutputStream? = null
+    private var mClientDataStream: DataOutputStream? = null
     private var width = DEFAULT_WIDTH
     private var height = DEFAULT_HEIGHT
     private var mSurface: Surface? = null
@@ -157,6 +159,7 @@ class ProjectionServer : Service() {
         }
         log.printDebug("Connection accepted.", TAG)
         mClientStream = ObjectOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
+        mClientDataStream = DataOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
         configureProjection()
         startProjection()
         sendProjectionData()
@@ -181,8 +184,10 @@ class ProjectionServer : Service() {
             handling = true
             while (handling) {
                 val data = mSendingBuffers.take()
-                mClientStream!!.flush()
-                mClientStream!!.writeObject(data)
+                mClientDataStream!!.writeInt(data.length)
+                mClientDataStream!!.write(data.data)
+//                mClientStream!!.writeObject(data)
+//                mClientStream!!.flush()
                 log.printDebug("Writing object... ${data.length}")
             }
         } catch (e: InterruptedException) {
@@ -204,10 +209,11 @@ class ProjectionServer : Service() {
         width = size.x
         height = size.y
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
-        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, DEFAULT_BITRATE)
+        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 12000000)
+//        mFormat!!.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.CodecCapabilities.)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mDisplay!!.refreshRate)
-        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 60)
+        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, /*mDisplay!!.refreshRate*/ (15).toFloat())
+        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
         mCallback = ProjectionCallback(mSendingBuffers, mCodec!!)
         mCodec!!.setCallback(mCallback)
