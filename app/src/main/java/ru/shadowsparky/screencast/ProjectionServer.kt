@@ -41,10 +41,7 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.NOTHING
 import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
-import java.io.BufferedOutputStream
-import java.io.DataOutputStream
-import java.io.IOException
-import java.io.ObjectOutputStream
+import java.io.*
 import java.net.*
 
 
@@ -71,6 +68,8 @@ class ProjectionServer : Service() {
     private var notification: Notification? = null
     private var reason = NOTHING
     private var broadcast: Intent? = null
+    private var mClientDataStream: DataOutputStream? = null
+
     private var handling: Boolean = false
         set(value) {
             if (value) {
@@ -141,7 +140,6 @@ class ProjectionServer : Service() {
     private fun startServer() = GlobalScope.launch(Dispatchers.IO)  {
         try {
             mServerSocket = ServerSocket(DEFAULT_PORT)
-            log.printDebug("${InetAddress.getByName("localhost")}", TAG)
         } catch (e: BindException) {
             reason = "Данный адрес уже используется"
             handling = false
@@ -163,6 +161,7 @@ class ProjectionServer : Service() {
         }
         log.printDebug("Connection accepted.", TAG)
         mClientStream = ObjectOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
+        mClientDataStream = DataOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
         configureProjection()
         startProjection()
         sendProjectionData()
@@ -181,8 +180,8 @@ class ProjectionServer : Service() {
             handling = true
             while (handling) {
                 val data = mSendingBuffers.take()
-                mClientStream!!.writeObject(data)
-                mClientStream!!.flush()
+                mClientDataStream!!.writeInt(data.length)
+                mClientDataStream!!.write(data.data)
             }
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
