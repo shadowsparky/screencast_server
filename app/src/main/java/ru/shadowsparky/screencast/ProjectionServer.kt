@@ -10,6 +10,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.Point
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
@@ -49,13 +50,13 @@ import java.net.*
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
+
     private lateinit var mProjectionManager: MediaProjectionManager
     private val TAG = "ProjectionServer"
     private var mProjection: MediaProjection? = null
     private var mServerSocket: ServerSocket? = null
     private var mClientSocket: Socket? = null
     private var mClientStream: ObjectOutputStream? = null
-    private var mClientDataStream: DataOutputStream? = null
     private var width = DEFAULT_WIDTH
     private var height = DEFAULT_HEIGHT
     private var mSurface: Surface? = null
@@ -93,7 +94,6 @@ class ProjectionServer : Service() {
             }
             field = value
         }
-
     private fun initBroadcast() {
         broadcast = Intent(Constants.BROADCAST_ACTION)
     }
@@ -156,25 +156,22 @@ class ProjectionServer : Service() {
             handling = false
             log.printDebug("SocketTimeoutException")
             return@launch
+        } catch (e: SocketException) {
+            reason = "Соединение неожиданно прервалось"
+            handling = false
+            return@launch
         }
         log.printDebug("Connection accepted.", TAG)
         mClientStream = ObjectOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
-        mClientDataStream = DataOutputStream(BufferedOutputStream(mClientSocket!!.getOutputStream()))
         configureProjection()
         startProjection()
         sendProjectionData()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-//        sendDisableConnectionRequest()
     }
 
     private fun sendProjectionInfo() {
         mClientStream!!.writeObject(PreparingData(width, height))
         mClientStream!!.flush()
     }
-
 
     private fun sendProjectionData() = GlobalScope.launch(Dispatchers.IO) {
         try {
@@ -184,11 +181,8 @@ class ProjectionServer : Service() {
             handling = true
             while (handling) {
                 val data = mSendingBuffers.take()
-                mClientDataStream!!.writeInt(data.length)
-                mClientDataStream!!.write(data.data)
-//                mClientStream!!.writeObject(data)
-//                mClientStream!!.flush()
-                log.printDebug("Writing object... ${data.length}")
+                mClientStream!!.writeObject(data)
+                mClientStream!!.flush()
             }
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
@@ -201,16 +195,13 @@ class ProjectionServer : Service() {
         }
     }.start()
 
+
     private fun configureProjection() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
-        val size = Point()
-        mUtils.overrideGetSize(mDisplay!!, size)
-        width = size.x
-        height = size.y
+        updateDisplayInfo()
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 12000000)
-//        mFormat!!.setInteger(MediaFormat.KEY_BITRATE_MODE, MediaCodecInfo.CodecCapabilities.)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, /*mDisplay!!.refreshRate*/ (15).toFloat())
         mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
@@ -219,6 +210,18 @@ class ProjectionServer : Service() {
         mCodec!!.setCallback(mCallback)
         mCodec!!.configure(mFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         mSurface = mCodec!!.createInputSurface()
+    }
+
+    private fun updateDisplayInfo() {
+        val size = Point()
+        mUtils.overrideGetSize(mDisplay!!, size)
+        if (size.y > size.x) {
+            width = size.y
+            height = size.x
+        } else {
+            width = size.x
+            height = size.y
+        }
     }
 
     private fun startProjection() {
