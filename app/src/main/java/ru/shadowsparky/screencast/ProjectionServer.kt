@@ -10,7 +10,7 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
+import android.graphics.PixelFormat
 import android.graphics.Point
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
@@ -19,9 +19,9 @@ import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
 import android.os.IBinder
-import android.view.Display
-import android.view.Surface
-import android.view.WindowManager
+import android.os.SystemClock
+import android.view.*
+import android.widget.LinearLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -30,7 +30,6 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.ACTION
 import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_CLOSED_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_STARTED_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT
 import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_ID
@@ -41,13 +40,15 @@ import ru.shadowsparky.screencast.extras.Constants.Companion.NOTHING
 import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
 import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
-import java.io.*
+import java.io.BufferedOutputStream
+import java.io.DataOutputStream
+import java.io.IOException
+import java.io.ObjectOutputStream
 import java.net.*
 
 
-class ProjectionServer : Service() {
+class ProjectionServer : Service(), View.OnTouchListener {
     private lateinit var mData: Intent
-
     private lateinit var mProjectionManager: MediaProjectionManager
     private val TAG = "ProjectionServer"
     private var mProjection: MediaProjection? = null
@@ -69,6 +70,8 @@ class ProjectionServer : Service() {
     private var reason = NOTHING
     private var broadcast: Intent? = null
     private var mClientDataStream: DataOutputStream? = null
+    private var layout: LinearLayout? = null
+    private var mWindowManager: WindowManager? = null
 
     private var handling: Boolean = false
         set(value) {
@@ -80,6 +83,7 @@ class ProjectionServer : Service() {
                 log.printDebug("Handling enabled")
             } else {
                 initBroadcast()
+
                 broadcast!!.putExtra(RECEIVER_CODE, RECEIVER_DEFAULT_CODE)
                 broadcast!!.putExtra(ACTION, CONNECTION_CLOSED_CODE)
                 broadcast!!.putExtra(REASON, reason)
@@ -93,10 +97,10 @@ class ProjectionServer : Service() {
             }
             field = value
         }
+
     private fun initBroadcast() {
         broadcast = Intent(Constants.BROADCAST_ACTION)
     }
-
     private fun socketSafeClosing() {
         try {
             if (mServerSocket != null) {
@@ -124,6 +128,7 @@ class ProjectionServer : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        enableTouchEventHandler()
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         createNotification()
@@ -172,6 +177,35 @@ class ProjectionServer : Service() {
         mClientStream!!.flush()
     }
 
+    private fun enableTouchEventHandler() {
+        layout = LinearLayout(this)
+        val lp = WindowManager.LayoutParams(30, WindowManager.LayoutParams.MATCH_PARENT)
+        layout!!.layoutParams = lp
+        //layout!!.setBackgroundColor(Color.CYAN)
+        layout!!.setOnTouchListener(this)
+        mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
+        val mParams = WindowManager.LayoutParams(
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.MATCH_PARENT,
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT)
+         mParams.gravity = Gravity.TOP
+        mWindowManager!!.addView(layout, mParams)
+    }
+
+    private fun touchDisplay(x: Float, y: Float) {
+        val event = MotionEvent.obtain(
+                SystemClock.uptimeMillis(),
+                SystemClock.uptimeMillis() + 100,
+                MotionEvent.ACTION_UP,
+                x,
+                y,
+                0
+        )
+        layout?.dispatchTouchEvent(event)
+    }
+
     private fun sendProjectionData() = GlobalScope.launch(Dispatchers.IO) {
         try {
             sendProjectionInfo()
@@ -193,7 +227,6 @@ class ProjectionServer : Service() {
             return@launch
         }
     }.start()
-
 
     private fun configureProjection() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
@@ -223,8 +256,14 @@ class ProjectionServer : Service() {
         }
     }
 
+    override fun onTouch(v: View?, event: MotionEvent?): Boolean {
+        log.printDebug("TOUCHED", TAG)
+        return true
+    }
+
     private fun startProjection() {
         mCodec!!.start()
         mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
+
     }
 }
