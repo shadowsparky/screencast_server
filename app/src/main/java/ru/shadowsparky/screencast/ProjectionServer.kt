@@ -4,12 +4,10 @@
 
 package ru.shadowsparky.screencast
 
-import android.app.Activity
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.graphics.PixelFormat
 import android.graphics.Point
 import android.hardware.display.VirtualDisplay
@@ -128,7 +126,6 @@ class ProjectionServer : Service(), View.OnTouchListener {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        enableTouchEventHandler()
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         createNotification()
@@ -177,34 +174,6 @@ class ProjectionServer : Service(), View.OnTouchListener {
         mClientStream!!.flush()
     }
 
-    private fun enableTouchEventHandler() {
-        layout = LinearLayout(this)
-        val lp = WindowManager.LayoutParams(30, WindowManager.LayoutParams.MATCH_PARENT)
-        layout!!.layoutParams = lp
-        //layout!!.setBackgroundColor(Color.CYAN)
-        layout!!.setOnTouchListener(this)
-        mWindowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        val mParams = WindowManager.LayoutParams(
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.MATCH_PARENT,
-                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-                PixelFormat.TRANSLUCENT)
-         mParams.gravity = Gravity.TOP
-        mWindowManager!!.addView(layout, mParams)
-    }
-
-    private fun touchDisplay(x: Float, y: Float) {
-        val event = MotionEvent.obtain(
-                SystemClock.uptimeMillis(),
-                SystemClock.uptimeMillis() + 100,
-                MotionEvent.ACTION_UP,
-                x,
-                y,
-                0
-        )
-        layout?.dispatchTouchEvent(event)
-    }
 
     private fun sendProjectionData() = GlobalScope.launch(Dispatchers.IO) {
         try {
@@ -247,23 +216,43 @@ class ProjectionServer : Service(), View.OnTouchListener {
     private fun updateDisplayInfo() {
         val size = Point()
         mUtils.overrideGetSize(mDisplay!!, size)
-        if (size.y > size.x) {
-            width = size.y
-            height = size.x
-        } else {
-            width = size.x
-            height = size.y
-        }
+//        if (size.y > size.x) {
+//            width = size.y
+//            height = size.x
+//        } else {
+        width = size.x
+        height = size.y
+//        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        stopProjection()
+    }
+
+    fun stopProjection() {
+        mCodec?.stop()
+        mProjection?.stop()
+        mSurface?.release()
+        mVirtualDisplay?.release()
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration?) {
+        super.onConfigurationChanged(newConfig)
+        log.printDebug("Configuration changed")
+        stopProjection()
+        configureProjection()
+        startProjection()
+        log.printDebug("$width $height")
     }
 
     override fun onTouch(v: View?, event: MotionEvent?): Boolean {
-        log.printDebug("TOUCHED", TAG)
+        log.printDebug("TOUCHED x: ${event?.x} y: ${event?.y}", TAG)
         return true
     }
 
     private fun startProjection() {
         mCodec!!.start()
         mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
-
     }
 }

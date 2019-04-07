@@ -19,18 +19,19 @@ class ProjectionCallback(
 
     override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
         Log.d(TAG, "OutputBufferAvailable")
-        try {
-            Thread {
+        Thread {
+            try {
+
                 val buffer = codec.getOutputBuffer(index)
                 buffer!!.position(info.offset)
                 val buf = TransferByteArray(ByteArray(buffer.remaining()), buffer.remaining())
                 buffer.get(buf.data, 0, info.size)
                 mSendingBuffers.add(buf)
                 mCodec.releaseOutputBuffer(index, false)
-            }.start()
-        } catch (e: Exception) {
-            Log.d(TAG,"exception: $e")
-        }
+            } catch (e: Exception) {
+                Log.d(TAG,"exception: $e")
+            }
+        }.start()
     }
 
     override fun onInputBufferAvailable(codec: MediaCodec, index: Int) {
