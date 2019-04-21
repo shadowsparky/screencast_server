@@ -6,8 +6,7 @@ package ru.shadowsparky.screencast
 
 import android.content.Context
 import android.content.Intent
-import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
-import ru.shadowsparky.screencast.extras.Constants.Companion.VIEW
+import ru.shadowsparky.screencast.extras.Constants.DATA
 
 class MainPresenter : Main.Presenter {
     var view: Main.View? = null

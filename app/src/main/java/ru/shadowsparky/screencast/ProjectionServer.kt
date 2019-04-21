@@ -25,20 +25,20 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.shadowsparky.screencast.extras.*
-import ru.shadowsparky.screencast.extras.Constants.Companion.ACTION
-import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_CLOSED_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_STARTED_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.DATA
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_DPI
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_HEIGHT
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_ID
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PORT
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_PROJECTION_NAME
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_WIDTH
-import ru.shadowsparky.screencast.extras.Constants.Companion.NOTHING
-import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
-import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
+import ru.shadowsparky.screencast.extras.Constants.ACTION
+import ru.shadowsparky.screencast.extras.Constants.CONNECTION_CLOSED_CODE
+import ru.shadowsparky.screencast.extras.Constants.CONNECTION_STARTED_CODE
+import ru.shadowsparky.screencast.extras.Constants.DATA
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_DPI
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PROJECTION_NAME
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
+import ru.shadowsparky.screencast.extras.Constants.NOTHING
+import ru.shadowsparky.screencast.extras.Constants.REASON
+import ru.shadowsparky.screencast.extras.Constants.RECEIVER_CODE
+import ru.shadowsparky.screencast.extras.Constants.RECEIVER_DEFAULT_CODE
 import ru.shadowsparky.screencast.proto.HandledPictureOuterClass
 import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
 import java.io.BufferedOutputStream
@@ -183,7 +183,7 @@ class ProjectionServer : Service() {
             while (handling) {
                 val data = mSendingBuffers.take()
                 val item = HandledPictureOuterClass.HandledPicture.newBuilder()
-                        .setEncodedPicture(ByteString.copyFrom(data.data))
+                        .setEncodedPicture(ByteString.copyFrom(data))
                         .build()
                 item.writeDelimitedTo(mClientSocket?.getOutputStream())
             }

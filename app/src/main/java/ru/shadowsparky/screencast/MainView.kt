@@ -16,7 +16,7 @@ import android.support.annotation.RequiresApi
 import android.support.v7.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import ru.shadowsparky.screencast.extras.Constants
-import ru.shadowsparky.screencast.extras.Constants.Companion.REQUEST_CODE
+import ru.shadowsparky.screencast.extras.Constants.REQUEST_CODE
 import ru.shadowsparky.screencast.extras.Injection
 
 

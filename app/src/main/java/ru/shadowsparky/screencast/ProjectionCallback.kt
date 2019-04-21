@@ -11,7 +11,7 @@ import ru.shadowsparky.screencast.extras.Injection
 import java.util.concurrent.LinkedBlockingQueue
 
 class ProjectionCallback(
-        private val mSendingBuffers: LinkedBlockingQueue<TransferByteArray>,
+        private val mSendingBuffers: LinkedBlockingQueue<ByteArray>,
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     private val TAG = javaClass.name
@@ -24,8 +24,8 @@ class ProjectionCallback(
 
                 val buffer = codec.getOutputBuffer(index)
                 buffer!!.position(info.offset)
-                val buf = TransferByteArray(ByteArray(buffer.remaining()), buffer.remaining())
-                buffer.get(buf.data, 0, info.size)
+                val buf = ByteArray(buffer.remaining())
+                buffer.get(buf, 0, info.size)
                 mSendingBuffers.add(buf)
                 mCodec.releaseOutputBuffer(index, false)
             } catch (e: Exception) {

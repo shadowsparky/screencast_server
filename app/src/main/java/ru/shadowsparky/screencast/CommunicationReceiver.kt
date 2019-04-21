@@ -7,13 +7,13 @@ package ru.shadowsparky.screencast
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import ru.shadowsparky.screencast.extras.Constants.Companion.ACTION
-import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_CLOSED_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.CONNECTION_STARTED_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.NOTHING
-import ru.shadowsparky.screencast.extras.Constants.Companion.REASON
-import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_CODE
-import ru.shadowsparky.screencast.extras.Constants.Companion.RECEIVER_DEFAULT_CODE
+import ru.shadowsparky.screencast.extras.Constants.ACTION
+import ru.shadowsparky.screencast.extras.Constants.CONNECTION_CLOSED_CODE
+import ru.shadowsparky.screencast.extras.Constants.CONNECTION_STARTED_CODE
+import ru.shadowsparky.screencast.extras.Constants.NOTHING
+import ru.shadowsparky.screencast.extras.Constants.REASON
+import ru.shadowsparky.screencast.extras.Constants.RECEIVER_CODE
+import ru.shadowsparky.screencast.extras.Constants.RECEIVER_DEFAULT_CODE
 
 class CommunicationReceiver(private val view: Main.View) : BroadcastReceiver() {
 

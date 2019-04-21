@@ -11,8 +11,8 @@ import android.content.Context
 import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.v4.app.NotificationCompat
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL
-import ru.shadowsparky.screencast.extras.Constants.Companion.DEFAULT_NOTIFICATION_CHANNEL_NAME
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_NAME
 
 
 class Notifications(private val context: Context) {
