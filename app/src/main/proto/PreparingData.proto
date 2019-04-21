@@ -1,0 +1,8 @@
+syntax = "proto3";
+package ru.shadowsparky.screencast.proto;
+
+message PreparingData {
+    int32 width = 1;
+    int32 height = 2;
+    string password = 3;
+}

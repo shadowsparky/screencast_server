@@ -36,13 +36,11 @@ class MainView : AppCompatActivity(), Main.View {
         setSupportActionBar(toolbar)
         presenter.attachView(this)
         capRequest.setOnClickListener { sendCaptureRequest() }
+        ipv4.text = address
         manager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val filter = IntentFilter(Constants.BROADCAST_ACTION)
         receiver = CommunicationReceiver(this)
         registerReceiver(receiver, filter)
-        test.setOnClickListener {
-            toast.show(this, "Clicked")
-        }
     }
 
     override fun setLocking(flag: Boolean) {
