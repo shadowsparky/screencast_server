@@ -7,6 +7,9 @@ package ru.shadowsparky.screencast
 import android.media.MediaCodec
 import android.media.MediaFormat
 import android.util.Log
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import ru.shadowsparky.screencast.extras.Injection
 import java.util.concurrent.LinkedBlockingQueue
 
@@ -15,13 +18,11 @@ class ProjectionCallback(
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     private val TAG = javaClass.name
-    private val log = Injection.provideLogger()
+//    private val log = Injection.provideLogger()
 
     override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
-        Log.d(TAG, "OutputBufferAvailable")
-        Thread {
+        GlobalScope.launch(Dispatchers.IO) {
             try {
-
                 val buffer = codec.getOutputBuffer(index)
                 buffer!!.position(info.offset)
                 val buf = ByteArray(buffer.remaining())

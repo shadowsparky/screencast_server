@@ -1,12 +1,15 @@
 /*
+ * Created by shadowsparky in 2019
+ */
+
+/*
  * Created by shadowsparky in 2018
  */
 
-package ru.shadowsparky.screencast
+package ru.shadowsparky.screencast.interfaces
 
 import android.content.Context
 import android.content.Intent
-import java.io.Serializable
 
 interface Main {
     interface View {
@@ -17,7 +20,7 @@ interface Main {
         fun setLocking(flag: Boolean)
     }
     interface Presenter {
-        fun attachView(view: Main.View)
+        fun attachView(view: View)
         fun projectionRequest(data: Intent, context: Context)
     }
     interface Model {

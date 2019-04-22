@@ -4,8 +4,8 @@
 
 package ru.shadowsparky.screencast.extras
 
-import ru.shadowsparky.screencast.Main
-import ru.shadowsparky.screencast.MainPresenter
+import ru.shadowsparky.screencast.interfaces.Main
+import ru.shadowsparky.screencast.presenters.MainPresenter
 import java.util.concurrent.LinkedBlockingQueue
 
 object Injection {

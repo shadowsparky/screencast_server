@@ -1,11 +1,17 @@
 /*
+ * Created by shadowsparky in 2019
+ */
+
+/*
  * Created by shadowsparky in 2018
  */
 
-package ru.shadowsparky.screencast
+package ru.shadowsparky.screencast.presenters
 
 import android.content.Context
 import android.content.Intent
+import ru.shadowsparky.screencast.interfaces.Main
+import ru.shadowsparky.screencast.ProjectionServer
 import ru.shadowsparky.screencast.extras.Constants.DATA
 
 class MainPresenter : Main.Presenter {

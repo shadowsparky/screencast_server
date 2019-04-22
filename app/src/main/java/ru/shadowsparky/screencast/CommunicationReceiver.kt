@@ -14,6 +14,7 @@ import ru.shadowsparky.screencast.extras.Constants.NOTHING
 import ru.shadowsparky.screencast.extras.Constants.REASON
 import ru.shadowsparky.screencast.extras.Constants.RECEIVER_CODE
 import ru.shadowsparky.screencast.extras.Constants.RECEIVER_DEFAULT_CODE
+import ru.shadowsparky.screencast.interfaces.Main
 
 class CommunicationReceiver(private val view: Main.View) : BroadcastReceiver() {
 

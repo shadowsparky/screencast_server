@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Screencast</string>
+    <string name="set_quality">Настройка изображения</string>
+    <string name="screen_expansion">Расширение экрана</string>
+    <string name="image_quality">Качество изображения</string>
+    <string name="framerate">Кол-во кадров</string>
 </resources>
