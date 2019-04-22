@@ -3,14 +3,17 @@
   ~ Created by shadowsparky in 2019
   -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/settings_layout"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/colorAccent"
-    tools:context=".views.SettingsFragment">
+    android:background="@color/colorAccent">
 
+    <LinearLayout
+        android:id="@+id/settings_layout"
+        android:background="@color/colorAccent"
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent">
 
-</LinearLayout>
+    </LinearLayout>
+</ScrollView>
