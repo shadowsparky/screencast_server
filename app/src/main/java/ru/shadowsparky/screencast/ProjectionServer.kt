@@ -68,6 +68,7 @@ class ProjectionServer : Service() {
     private var notification: Notification? = null
     private var reason = NOTHING
     private var broadcast: Intent? = null
+    private lateinit var shared: SharedUtils
 
     private var handling: Boolean = false
         set(value) {
@@ -124,6 +125,7 @@ class ProjectionServer : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        shared = Injection.provideSharedUtils(this)
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         createNotification()
@@ -205,7 +207,7 @@ class ProjectionServer : Service() {
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 12000000)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mDisplay!!.refreshRate)
+        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, shared.getFramerate().toFloat())
         mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
         mCallback = ProjectionCallback(mSendingBuffers, mCodec!!)

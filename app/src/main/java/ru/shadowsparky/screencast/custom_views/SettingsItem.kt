@@ -32,7 +32,7 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
         this.mCurrentSetting = view.findViewById(R.id.current_setting)
         this.mCard = view.findViewById(ru.shadowsparky.screencast.R.id.setting_card)
         this.mCard.setOnClickListener {
-            handler.handle(choosed_item)
+            handler.onSettingChoosed(choosed_item)
         }
         parent.addView(view)
     }

@@ -6,6 +6,6 @@ package ru.shadowsparky.screencast.interfaces
 
 import ru.shadowsparky.screencast.SettingsChoose
 
-interface Settingeable {
-    fun onSettingChoosed(choose: SettingsChoose)
+interface ChangeSettingsHandler {
+    fun onSettingsChanged(choose: SettingsChoose, value: String)
 }

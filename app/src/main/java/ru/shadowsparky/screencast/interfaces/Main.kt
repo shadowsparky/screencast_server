@@ -1,8 +1,4 @@
 /*
- * Created by shadowsparky in 2019
- */
-
-/*
  * Created by shadowsparky in 2018
  */
 
@@ -24,6 +20,6 @@ interface Main {
         fun projectionRequest(data: Intent, context: Context)
     }
     interface Model {
-
+        // nothing
     }
 }

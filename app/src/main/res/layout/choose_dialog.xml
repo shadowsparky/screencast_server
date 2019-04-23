@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Created by shadowsparky in 2019
+  -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:background="@color/colorPrimary"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:id="@+id/choosed_section"
+        android:textStyle="bold"
+        android:layout_margin="16dp"
+        android:textSize="16dp"
+        android:textColor="@android:color/holo_blue_dark"
+        android:layout_width="match_parent"
+        android:text="@string/app_name"
+        android:layout_height="wrap_content" />
+
+    <ListView
+        android:background="@color/colorPrimary"
+        android:id="@+id/setting_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </ListView>
+
+    <LinearLayout
+        android:gravity="end"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_margin="16dp"
+            android:layout_gravity="center"
+            android:id="@+id/cancel_setting_button"
+            android:textSize="16sp"
+            android:textColor="@android:color/holo_blue_dark"
+            android:layout_width="wrap_content"
+            android:textAlignment="center"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"/>
+
+    </LinearLayout>
+
+</LinearLayout>

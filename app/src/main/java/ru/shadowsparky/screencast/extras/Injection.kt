@@ -4,6 +4,7 @@
 
 package ru.shadowsparky.screencast.extras
 
+import android.content.Context
 import ru.shadowsparky.screencast.interfaces.Main
 import ru.shadowsparky.screencast.presenters.MainPresenter
 import java.util.concurrent.LinkedBlockingQueue
@@ -11,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue
 object Injection {
     private var logInstance: Logger? = null
     fun provideIpHandler() : IpHandler = IpHandler()
+    fun provideSharedUtils(context: Context) : SharedUtils = SharedUtils(context)
 
     fun provideLogger() : Logger {
         if (logInstance == null)
