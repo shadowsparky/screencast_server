@@ -15,6 +15,7 @@ import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.custom_views.SettingsItem
 import ru.shadowsparky.screencast.dialogs.ChooseDialog
 import ru.shadowsparky.screencast.extras.Injection
+import ru.shadowsparky.screencast.extras.SettingsParser
 import ru.shadowsparky.screencast.extras.SharedUtils
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 import ru.shadowsparky.screencast.interfaces.Settingeable
@@ -23,7 +24,7 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
     private val quality_list = listOf("100%", "75%", "50%", "30%")
     private val framerate_list = listOf("60", "45", "30", "15", "5")
-    private val delay_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
+    private val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
     private lateinit var shared: SharedUtils
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
@@ -31,10 +32,15 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         return inflater.inflate(R.layout.fragment_settings, container, false)
     }
 
-    private fun attachSetting(setting_name: String, setting_text: String, choose: SettingsChoose) {
+    private fun attachSetting(choose: SettingsChoose) {
         val first = SettingsItem(context!!, settings_layout, choose, this)
-        first.mSettingName.text = setting_name
-        first.mCurrentSetting.text = setting_text
+        first.mSettingName.text = SettingsParser.getSectionName(choose)
+        if (choose == SettingsChoose.PASSWORD) {
+            val exists = shared.read(choose.name) != ""
+            first.mCurrentSetting.text = if (exists) "Существует" else "Отсутствует"
+        } else  {
+            first.mCurrentSetting.text = shared.read(choose.name)
+        }
     }
 
     override fun onSettingsChanged(choose: SettingsChoose, value: String) {
@@ -52,8 +58,8 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
                 val dialog = ChooseDialog(context!!, framerate_list, this, choose)
                 dialog.show()
             }
-            SettingsChoose.DELAY -> {
-                val dialog = ChooseDialog(context!!, delay_list, this, choose)
+            SettingsChoose.WAITING -> {
+                val dialog = ChooseDialog(context!!, waiting_list, this, choose)
                 dialog.show()
             }
             else -> toast.show(context!!, "Данный раздел: ${choose.name} находится в разработке.")
@@ -71,42 +77,12 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     fun loadSetting() {
         settings_layout.removeAllViews()
         settings_layout.addView(SettingsItem.generateNewSection("Настройка изображения", context!!))
-        loadQuality()
-//        loadExpansion()
-        loadFramerate()
+        attachSetting(SettingsChoose.IMAGE_QUALITY)
+        attachSetting(SettingsChoose.FRAMERATE)
         settings_layout.addView(SettingsItem.generateNewSection("Защита", context!!))
-        loadPassword()
+        attachSetting(SettingsChoose.PASSWORD)
         settings_layout.addView(SettingsItem.generateNewSection("Остальное", context!!))
-        loadDelay()
+        attachSetting(SettingsChoose.WAITING)
         settings_layout.addView(SettingsItem.generateCopyright("AVB Cast.\nCreated By Shadowsparky, in 2019", context!!))
     }
-
-    fun loadQuality() {
-        val current_setting = shared.read(SettingsChoose.IMAGE_QUALITY.name)
-        attachSetting("Качество изображения", current_setting, SettingsChoose.IMAGE_QUALITY)
-    }
-
-    fun loadExpansion() {
-        val current_setting = shared.read(SettingsChoose.EXPANSION.name)
-        attachSetting("Расширение", current_setting, SettingsChoose.EXPANSION)
-    }
-
-    fun loadFramerate() {
-        val current_setting = shared.read(SettingsChoose.FRAMERATE.name)
-        attachSetting("Кадров в секунду", "$current_setting", SettingsChoose.FRAMERATE)
-    }
-
-    fun loadPassword() {
-        val current_setting = if (shared.read(SettingsChoose.PASSWORD.name) == "")
-            "пароль отсутствует"
-        else
-            "пароль присутствует"
-        attachSetting("Пароль", current_setting, SettingsChoose.PASSWORD)
-    }
-
-    fun loadDelay() {
-        val current_setting = shared.read(SettingsChoose.DELAY.name)
-        attachSetting("Задержка", current_setting, SettingsChoose.DELAY)
-    }
-
 }

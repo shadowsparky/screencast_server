@@ -28,13 +28,21 @@ class MainFragment : Fragment(), Main.View {
     private val presenter = Injection.provideMainPresenter()
     private lateinit var manager : MediaProjectionManager
     private lateinit var receiver: CommunicationReceiver
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
+    private lateinit var server: Intent
 
     override fun setLocking(flag: Boolean) {
-        capRequest.isEnabled = !flag
+        if (flag) {
+            setButtonText("Отключиться")
+        } else {
+            context?.stopService(server)
+            setButtonText("Подключиться")
+            print("Произошло отключение от клиента")
+        }
+        capRequest.isEnabled = true
+    }
+
+    override fun setButtonText(text: String) {
+        capRequest.text = text
     }
 
     override fun onDestroy() {
@@ -70,7 +78,13 @@ class MainFragment : Fragment(), Main.View {
     override fun onStart() {
         super.onStart()
         presenter.attachView(this)
-        capRequest.setOnClickListener { sendCaptureRequest() }
+        capRequest.setOnClickListener {
+            if (capRequest.text == "Подключиться")
+                sendCaptureRequest()
+            else {
+                setLocking(false)
+            }
+        }
         ipv4.text = address
         manager = context?.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         val filter = IntentFilter(Constants.BROADCAST_ACTION)
@@ -84,7 +98,8 @@ class MainFragment : Fragment(), Main.View {
 
     override fun startServer(server: Intent) {
         context?.startService(server)
+        this.server = server
         print("Ожидание подключения...")
-        setLocking(true)
+        capRequest.isEnabled = false
     }
 }

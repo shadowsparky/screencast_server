@@ -24,8 +24,8 @@ class SharedUtils(val context: Context) {
             write(SettingsChoose.EXPANSION.name, "${size.y}:${size.x}")
         if (read(SettingsChoose.FRAMERATE.name) == "")
             write(SettingsChoose.FRAMERATE.name, "${Math.round(refreshRating)}")
-        if (read(SettingsChoose.DELAY.name) == "")
-            write(SettingsChoose.DELAY.name, "30 секунд")
+        if (read(SettingsChoose.WAITING.name) == "")
+            write(SettingsChoose.WAITING.name, "30 секунд")
     }
 
     val preferences: SharedPreferences = context.getSharedPreferences("", MODE_PRIVATE)
@@ -38,9 +38,4 @@ class SharedUtils(val context: Context) {
         return true
     }
     fun read(key: String) : String = preferences.getString(key, "")!!
-
-    fun getFramerate() : Int {
-        val framerate_str = read(SettingsChoose.FRAMERATE.name)
-        return Integer.parseInt(framerate_str)
-    }
 }

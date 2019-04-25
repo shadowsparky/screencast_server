@@ -13,6 +13,7 @@ object Injection {
     private var logInstance: Logger? = null
     fun provideIpHandler() : IpHandler = IpHandler()
     fun provideSharedUtils(context: Context) : SharedUtils = SharedUtils(context)
+    fun provideSettingsParser(context: Context) : SettingsParser = SettingsParser(context)
 
     fun provideLogger() : Logger {
         if (logInstance == null)

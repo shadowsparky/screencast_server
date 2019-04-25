@@ -12,6 +12,7 @@ import android.widget.ListView
 import kotlinx.android.synthetic.main.choose_dialog.*
 import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
+import ru.shadowsparky.screencast.extras.SettingsParser
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 
 class ChooseDialog(
@@ -29,7 +30,7 @@ class ChooseDialog(
         cancel_setting_button.setOnClickListener {
             hide()
         }
-        choosed_section.text = getSectionName()
+        choosed_section.text = SettingsParser.getSectionName(choose)
         val adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, values)
         setting_list.adapter = adapter
         setting_list.setOnItemClickListener { parent, view, position, id ->
@@ -37,16 +38,4 @@ class ChooseDialog(
             this.hide()
         }
     }
-
-
-    fun getSectionName() : String {
-        return when(choose) {
-            SettingsChoose.IMAGE_QUALITY -> "Качество изображения"
-            SettingsChoose.EXPANSION -> "Расширение"
-            SettingsChoose.FRAMERATE -> "Кадров в секунду"
-            SettingsChoose.PASSWORD -> "Пароль"
-            SettingsChoose.DELAY -> "Задержка"
-        }
-    }
-
 }

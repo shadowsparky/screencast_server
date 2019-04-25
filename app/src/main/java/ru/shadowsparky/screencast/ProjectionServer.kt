@@ -12,13 +12,14 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Point
+import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.IBinder
+import android.os.*
 import android.view.*
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
@@ -46,6 +47,7 @@ import java.io.DataOutputStream
 import java.io.IOException
 import java.io.ObjectOutputStream
 import java.net.*
+import kotlin.math.roundToInt
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
@@ -69,6 +71,8 @@ class ProjectionServer : Service() {
     private var reason = NOTHING
     private var broadcast: Intent? = null
     private lateinit var shared: SharedUtils
+    private lateinit var settingsParser: SettingsParser
+    private val mHandlerThread = HandlerThread("CallbackThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
 
     private var handling: Boolean = false
         set(value) {
@@ -80,7 +84,7 @@ class ProjectionServer : Service() {
                 log.printDebug("Handling enabled")
             } else {
                 initBroadcast()
-
+                mHandlerThread.quitSafely()
                 broadcast!!.putExtra(RECEIVER_CODE, RECEIVER_DEFAULT_CODE)
                 broadcast!!.putExtra(ACTION, CONNECTION_CLOSED_CODE)
                 broadcast!!.putExtra(REASON, reason)
@@ -89,7 +93,11 @@ class ProjectionServer : Service() {
                 log.printDebug("Handling disabled")
                 socketSafeClosing()
                 clientSocketSafeClosing()
+                try {
                 mCodec?.stop()
+                } catch (e: IllegalStateException) {
+                    // ignore
+                }
                 this.stopSelf()
             }
             field = value
@@ -126,6 +134,7 @@ class ProjectionServer : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         shared = Injection.provideSharedUtils(this)
+        settingsParser = Injection.provideSettingsParser(this)
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         createNotification()
@@ -205,9 +214,9 @@ class ProjectionServer : Service() {
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         updateDisplayInfo()
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
-        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 12000000)
+        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 1048576/4)
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, shared.getFramerate().toFloat())
+        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, settingsParser.getFramerate().toFloat())
         mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
         mCallback = ProjectionCallback(mSendingBuffers, mCodec!!)
@@ -229,10 +238,10 @@ class ProjectionServer : Service() {
     }
 
     private fun stopProjection() {
-        mCodec?.stop()
         mProjection?.stop()
         mSurface?.release()
         mVirtualDisplay?.release()
+        handling = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
@@ -246,6 +255,7 @@ class ProjectionServer : Service() {
 
     private fun startProjection() {
         mCodec!!.start()
-        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
+        mHandlerThread.start()
+        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, Handler(mHandlerThread.looper))
     }
 }

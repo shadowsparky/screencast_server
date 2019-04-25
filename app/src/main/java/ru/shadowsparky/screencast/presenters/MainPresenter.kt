@@ -24,7 +24,6 @@ class MainPresenter : Main.Presenter {
     override fun projectionRequest(data: Intent, context: Context) {
         val server = Intent(context, ProjectionServer::class.java)
         server.putExtra(DATA, data)
-//        server.putExtra(VIEW, view!!)
         view!!.startServer(server)
     }
 }

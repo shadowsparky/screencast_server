@@ -30,7 +30,7 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
         view = inflater.inflate(R.layout.settings_item, parent, false)
         this.mSettingName = view.findViewById(R.id.setting_name)
         this.mCurrentSetting = view.findViewById(R.id.current_setting)
-        this.mCard = view.findViewById(ru.shadowsparky.screencast.R.id.setting_card)
+        this.mCard = view.findViewById(R.id.setting_card)
         this.mCard.setOnClickListener {
             handler.onSettingChoosed(choosed_item)
         }

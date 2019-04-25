@@ -9,5 +9,5 @@ enum class SettingsChoose {
     EXPANSION,
     FRAMERATE,
     PASSWORD,
-    DELAY
+    WAITING
 }
