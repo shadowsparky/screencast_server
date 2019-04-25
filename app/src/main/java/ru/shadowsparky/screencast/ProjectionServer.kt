@@ -156,7 +156,7 @@ class ProjectionServer : Service() {
             handling = false
             return@launch
         }
-        mServerSocket!!.soTimeout = 30000
+        mServerSocket!!.soTimeout = settingsParser.getWaiting()
         log.printDebug("Waiting connection...", TAG)
         try {
             mClientSocket = mServerSocket!!.accept()
@@ -214,7 +214,7 @@ class ProjectionServer : Service() {
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         updateDisplayInfo()
         mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
-        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, 1048576/4)
+        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE, settingsParser.getBitrate())
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, settingsParser.getFramerate().toFloat())
         mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)

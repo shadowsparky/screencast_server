@@ -28,14 +28,14 @@ class ChooseDialog(
         this.setCanceledOnTouchOutside(false)
         setting_list.choiceMode = ListView.CHOICE_MODE_SINGLE
         cancel_setting_button.setOnClickListener {
-            hide()
+            this.dismiss()
         }
         choosed_section.text = SettingsParser.getSectionName(choose)
         val adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, values)
         setting_list.adapter = adapter
         setting_list.setOnItemClickListener { parent, view, position, id ->
             handler.onSettingsChanged(choose, values[position])
-            this.hide()
+            this.dismiss()
         }
     }
 }

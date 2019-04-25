@@ -22,9 +22,12 @@ import ru.shadowsparky.screencast.interfaces.Settingeable
 
 class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
-    private val quality_list = listOf("100%", "75%", "50%", "30%")
-    private val framerate_list = listOf("60", "45", "30", "15", "5")
-    private val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
+    companion object {
+        val BITRATE = listOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
+        val quality_list = listOf("${BITRATE[0]} кб (Мин. качество)", "${BITRATE[1]} кб", "${BITRATE[2]} кб", "${BITRATE[3]} кб", "${BITRATE[4]} мб", "${BITRATE[5]} мб", "${BITRATE[6]} мб", "${BITRATE[7]} мб (Макс. качество)")
+        val framerate_list = listOf("60", "45", "30", "15", "5", "1")
+        val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
+    }
     private lateinit var shared: SharedUtils
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
