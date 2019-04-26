@@ -28,7 +28,7 @@ class MainFragment : Fragment(), Main.View {
     private val presenter = Injection.provideMainPresenter()
     private lateinit var manager : MediaProjectionManager
     private lateinit var receiver: CommunicationReceiver
-    private lateinit var server: Intent
+    private var server: Intent? = null
 
     override fun setLocking(flag: Boolean) {
         if (flag) {

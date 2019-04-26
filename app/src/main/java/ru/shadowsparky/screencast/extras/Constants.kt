@@ -10,6 +10,8 @@ object Constants {
     val REQUEST_CODE = 77
     val DATA = "data"
     val VIEW = "view"
+    val DISABLE_PROJECTION_ACTION = "disable projection action"
+    val DISABLE_PROJECTION_VALUE = "disable projection value"
     val CONNECTION_STARTED_CODE = 1
     val CONNECTION_CLOSED_CODE = 2
     val RECEIVER_DEFAULT_CODE = 43

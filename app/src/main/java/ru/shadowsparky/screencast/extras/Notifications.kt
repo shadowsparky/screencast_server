@@ -14,8 +14,7 @@ import androidx.core.app.NotificationCompat
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_NAME
 
-
-class Notifications(private val context: Context) {
+class Notifications(private val context: Context, private val dismiss: NotificationCompat.Action) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun newNotification(notificationManager: NotificationManager) : Notification {
@@ -25,6 +24,7 @@ class Notifications(private val context: Context) {
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
+                .addAction(dismiss)
                 .build()
     }
 
@@ -33,7 +33,6 @@ class Notifications(private val context: Context) {
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
-                .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .build()
     }
 

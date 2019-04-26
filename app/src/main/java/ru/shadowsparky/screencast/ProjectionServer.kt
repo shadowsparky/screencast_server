@@ -4,23 +4,25 @@
 
 package ru.shadowsparky.screencast
 
-import android.app.Activity
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Point
-import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.*
-import android.view.*
+import android.os.Handler
+import android.os.HandlerThread
+import android.os.IBinder
+import android.os.Process
+import android.view.Display
+import android.view.Surface
+import android.view.WindowManager
+import androidx.core.app.NotificationCompat
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -36,18 +38,16 @@ import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PROJECTION_NAME
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
+import ru.shadowsparky.screencast.extras.Constants.DISABLE_PROJECTION_ACTION
+import ru.shadowsparky.screencast.extras.Constants.DISABLE_PROJECTION_VALUE
 import ru.shadowsparky.screencast.extras.Constants.NOTHING
 import ru.shadowsparky.screencast.extras.Constants.REASON
 import ru.shadowsparky.screencast.extras.Constants.RECEIVER_CODE
 import ru.shadowsparky.screencast.extras.Constants.RECEIVER_DEFAULT_CODE
 import ru.shadowsparky.screencast.proto.HandledPictureOuterClass
 import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
-import java.io.BufferedOutputStream
-import java.io.DataOutputStream
 import java.io.IOException
-import java.io.ObjectOutputStream
 import java.net.*
-import kotlin.math.roundToInt
 
 class ProjectionServer : Service() {
     private lateinit var mData: Intent
@@ -72,7 +72,6 @@ class ProjectionServer : Service() {
     private var broadcast: Intent? = null
     private lateinit var shared: SharedUtils
     private lateinit var settingsParser: SettingsParser
-    private val mHandlerThread = HandlerThread("CallbackThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
 
     private var handling: Boolean = false
         set(value) {
@@ -84,7 +83,6 @@ class ProjectionServer : Service() {
                 log.printDebug("Handling enabled")
             } else {
                 initBroadcast()
-                mHandlerThread.quitSafely()
                 broadcast!!.putExtra(RECEIVER_CODE, RECEIVER_DEFAULT_CODE)
                 broadcast!!.putExtra(ACTION, CONNECTION_CLOSED_CODE)
                 broadcast!!.putExtra(REASON, reason)
@@ -137,14 +135,18 @@ class ProjectionServer : Service() {
         settingsParser = Injection.provideSettingsParser(this)
         mData = intent!!.getParcelableExtra(DATA)
         mProjectionManager = getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        createNotification()
         startServer()
         return START_NOT_STICKY
     }
 
     private fun createNotification() {
+        val intent = Intent(baseContext, CommunicationReceiver::class.java)
+        intent.putExtra(DISABLE_PROJECTION_ACTION, DISABLE_PROJECTION_VALUE)
+        val pi = PendingIntent.getBroadcast(baseContext, 1, intent, 0)
+        val action = NotificationCompat.Action.Builder(0, "Остановить", pi)
+                .build()
         val notificationService = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notification = Notifications(this).provideNotification(notificationService)
+        notification = Notifications(this, action).provideNotification(notificationService)
         startForeground(DEFAULT_NOTIFICATION_ID, notification)
     }
 
@@ -170,6 +172,7 @@ class ProjectionServer : Service() {
             handling = false
             return@launch
         }
+        createNotification()
         log.printDebug("Connection accepted.", TAG)
         configureProjection()
         startProjection()
@@ -237,17 +240,18 @@ class ProjectionServer : Service() {
         stopProjection()
     }
 
-    private fun stopProjection() {
+    private fun stopProjection(disableHandling: Boolean = true) {
         mProjection?.stop()
         mSurface?.release()
         mVirtualDisplay?.release()
-        handling = false
+        if (disableHandling)
+            handling = false
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         log.printDebug("Configuration changed")
-        stopProjection()
+        stopProjection(false)
         configureProjection()
         startProjection()
         log.printDebug("$width $height")
@@ -255,7 +259,6 @@ class ProjectionServer : Service() {
 
     private fun startProjection() {
         mCodec!!.start()
-        mHandlerThread.start()
-        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, Handler(mHandlerThread.looper))
+        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
     }
 }
