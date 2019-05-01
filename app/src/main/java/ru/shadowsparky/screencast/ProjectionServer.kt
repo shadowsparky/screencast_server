@@ -9,19 +9,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.graphics.Point
+import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
 import android.media.MediaCodec
 import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Handler
-import android.os.HandlerThread
-import android.os.IBinder
-import android.os.Process
+import android.os.*
 import android.view.Display
 import android.view.Surface
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
 import com.google.protobuf.ByteString
 import kotlinx.coroutines.Dispatchers
@@ -49,7 +48,11 @@ import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
 import java.io.IOException
 import java.net.*
 
-class ProjectionServer : Service() {
+interface Writeable {
+    fun write(array: ByteArray)
+}
+
+class ProjectionServer : Service(), Writeable {
     private lateinit var mData: Intent
     private lateinit var mProjectionManager: MediaProjectionManager
     private val TAG = "ProjectionServer"
@@ -72,6 +75,12 @@ class ProjectionServer : Service() {
     private var broadcast: Intent? = null
     private lateinit var shared: SharedUtils
     private lateinit var settingsParser: SettingsParser
+    private var encoderThread = HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
+
+    override fun onCreate() {
+        super.onCreate()
+        encoderThread.start()
+    }
 
     private var handling: Boolean = false
         set(value) {
@@ -162,6 +171,7 @@ class ProjectionServer : Service() {
         log.printDebug("Waiting connection...", TAG)
         try {
             mClientSocket = mServerSocket!!.accept()
+            mClientSocket!!.tcpNoDelay = true
         } catch (e: SocketTimeoutException) {
             reason = "Превышено время ожидания подключения"
             handling = false
@@ -176,10 +186,11 @@ class ProjectionServer : Service() {
         log.printDebug("Connection accepted.", TAG)
         configureProjection()
         startProjection()
-        sendProjectionData()
+        sendProjectionInfo()
     }
 
     private fun sendProjectionInfo() {
+        handling = true
         val data = PreparingDataOuterClass.PreparingData.newBuilder()
                 .setWidth(width)
                 .setHeight(height)
@@ -188,29 +199,47 @@ class ProjectionServer : Service() {
         data.writeDelimitedTo(mClientSocket?.getOutputStream())
     }
 
-
-    private fun sendProjectionData() = GlobalScope.launch(Dispatchers.IO) {
+    override fun write(array: ByteArray) {
         try {
-            sendProjectionInfo()
-            mClientSocket!!.tcpNoDelay = true
-            handling = true
-            while (handling) {
-                val data = mSendingBuffers.take()
-                val item = HandledPictureOuterClass.HandledPicture.newBuilder()
-                        .setEncodedPicture(ByteString.copyFrom(data))
-                        .build()
-                item.writeDelimitedTo(mClientSocket?.getOutputStream())
-            }
+            val item = HandledPictureOuterClass.HandledPicture.newBuilder()
+                    .setEncodedPicture(ByteString.copyFrom(array))
+                    .build()
+            item.writeDelimitedTo(mClientSocket?.getOutputStream())
+            log.printError("Message sent ${item.serializedSize}", TAG, true)
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
             handling = false
-            return@launch
+            return
         } catch (e: IOException) {
             handling = false
             log.printError("IOException")
-            return@launch
+            return
         }
-    }.start()
+    }
+
+
+//    private fun sendProjectionData() {
+//        try {
+//            sendProjectionInfo()
+//            handling = true
+//            while (handling) {
+//                val data = mSendingBuffers.take()
+//                val item = HandledPictureOuterClass.HandledPicture.newBuilder()
+//                        .setEncodedPicture(ByteString.copyFrom(data))
+//                        .build()
+//                item.writeDelimitedTo(mClientSocket?.getOutputStream())
+//                log.printError("Message sent ${item.serializedSize}", TAG, true)
+//            }
+//        } catch (e: InterruptedException) {
+//            log.printError("InterruptedException")
+//            handling = false
+//            return
+//        } catch (e: IOException) {
+//            handling = false
+//            log.printError("IOException")
+//            return
+//        }
+//    }
 
     private fun configureProjection() {
         mProjection = mProjectionManager.getMediaProjection(Activity.RESULT_OK, mData)
@@ -222,8 +251,8 @@ class ProjectionServer : Service() {
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, settingsParser.getFramerate().toFloat())
         mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
         mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
-        mCallback = ProjectionCallback(mSendingBuffers, mCodec!!)
-        mCodec!!.setCallback(mCallback)
+        mCallback = ProjectionCallback(this, mCodec!!)
+        mCodec!!.setCallback(mCallback, Handler(encoderThread.looper))
         mCodec!!.configure(mFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
         mSurface = mCodec!!.createInputSurface()
     }
@@ -238,6 +267,7 @@ class ProjectionServer : Service() {
     override fun onDestroy() {
         super.onDestroy()
         stopProjection()
+        encoderThread.quit()
     }
 
     private fun stopProjection(disableHandling: Boolean = true) {
@@ -259,6 +289,6 @@ class ProjectionServer : Service() {
 
     private fun startProjection() {
         mCodec!!.start()
-        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, 0, mSurface, null, null)
+        mVirtualDisplay = mProjection!!.createVirtualDisplay(DEFAULT_PROJECTION_NAME, width, height, DEFAULT_DPI, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mSurface, null, Handler(encoderThread.looper))
     }
 }

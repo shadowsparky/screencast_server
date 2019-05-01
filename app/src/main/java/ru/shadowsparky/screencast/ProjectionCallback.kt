@@ -14,26 +14,25 @@ import ru.shadowsparky.screencast.extras.Injection
 import java.util.concurrent.LinkedBlockingQueue
 
 class ProjectionCallback(
-        private val mSendingBuffers: LinkedBlockingQueue<ByteArray>,
+        private val callback: Writeable,
+//        private val mSendingBuffers: LinkedBlockingQueue<ByteArray>,
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     private val TAG = javaClass.name
     private val log = Injection.provideLogger()
 
     override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
-        GlobalScope.launch(Dispatchers.IO) {
-            try {
-                val buffer = codec.getOutputBuffer(index)
-                buffer!!.position(info.offset)
-                val buf = ByteArray(buffer.remaining())
-                buffer.get(buf, 0, info.size)
-                mSendingBuffers.add(buf)
-                log.printError("Message sent ${buf.size}")
-                mCodec.releaseOutputBuffer(index, false)
-            } catch (e: Exception) {
-                Log.d(TAG,"exception: $e")
-            }
-        }.start()
+        try {
+            val buffer = codec.getOutputBuffer(index)
+            buffer!!.position(info.offset)
+            val buf = ByteArray(buffer.remaining())
+            buffer.get(buf, 0, info.size)
+            callback.write(buf)
+//            mSendingBuffers.add(buf)
+            mCodec.releaseOutputBuffer(index, false)
+        } catch (e: Exception) {
+            Log.d(TAG,"exception: $e")
+        }
     }
 
     override fun onInputBufferAvailable(codec: MediaCodec, index: Int) {
