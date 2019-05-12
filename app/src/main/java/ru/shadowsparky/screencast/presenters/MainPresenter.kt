@@ -2,10 +2,6 @@
  * Created by shadowsparky in 2019
  */
 
-/*
- * Created by shadowsparky in 2018
- */
-
 package ru.shadowsparky.screencast.presenters
 
 import android.content.Context

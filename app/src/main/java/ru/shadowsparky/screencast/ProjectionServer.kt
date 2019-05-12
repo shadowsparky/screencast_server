@@ -49,7 +49,7 @@ import java.io.IOException
 import java.net.*
 
 interface Writeable {
-    fun write(array: ByteArray)
+    fun write(array: ByteArray, flags: Int)
 }
 
 class ProjectionServer : Service(), Writeable {
@@ -199,13 +199,14 @@ class ProjectionServer : Service(), Writeable {
         data.writeDelimitedTo(mClientSocket?.getOutputStream())
     }
 
-    override fun write(array: ByteArray) {
+    override fun write(array: ByteArray, flags: Int) {
         try {
             val item = HandledPictureOuterClass.HandledPicture.newBuilder()
                     .setEncodedPicture(ByteString.copyFrom(array))
+                    .setFlags(flags)
                     .build()
             item.writeDelimitedTo(mClientSocket?.getOutputStream())
-            log.printError("Message sent ${item.serializedSize}", TAG, true)
+            log.printError("Message sent ${item.flags}", TAG, true)
         } catch (e: InterruptedException) {
             log.printError("InterruptedException")
             handling = false

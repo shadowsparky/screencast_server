@@ -4,7 +4,6 @@
 
 package ru.shadowsparky.screencast.adapters
 
-import android.provider.Settings
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
@@ -12,12 +11,12 @@ import ru.shadowsparky.screencast.views.MainFragment
 import ru.shadowsparky.screencast.views.SettingsFragment
 
 class TabAdapter(
-        val manager: androidx.fragment.app.FragmentManager,
+        manager: FragmentManager,
         private val tab_count: Int
-) : androidx.fragment.app.FragmentStatePagerAdapter(manager) {
+) : FragmentStatePagerAdapter(manager) {
 
-    override fun getItem(position: Int): androidx.fragment.app.Fragment {
-        var fragment: androidx.fragment.app.Fragment? = null
+    override fun getItem(position: Int): Fragment {
+        var fragment: Fragment? = null
         when(position) {
             0 -> fragment = MainFragment()
             1 -> fragment = SettingsFragment()

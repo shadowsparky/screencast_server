@@ -15,11 +15,9 @@ import java.util.concurrent.LinkedBlockingQueue
 
 class ProjectionCallback(
         private val callback: Writeable,
-//        private val mSendingBuffers: LinkedBlockingQueue<ByteArray>,
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     private val TAG = javaClass.name
-    private val log = Injection.provideLogger()
 
     override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
         try {
@@ -27,8 +25,7 @@ class ProjectionCallback(
             buffer!!.position(info.offset)
             val buf = ByteArray(buffer.remaining())
             buffer.get(buf, 0, info.size)
-            callback.write(buf)
-//            mSendingBuffers.add(buf)
+            callback.write(buf, info.flags)
             mCodec.releaseOutputBuffer(index, false)
         } catch (e: Exception) {
             Log.d(TAG,"exception: $e")

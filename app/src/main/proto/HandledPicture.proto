@@ -2,5 +2,6 @@ syntax = "proto3";
 package ru.shadowsparky.screencast.proto;
 
 message HandledPicture {
-    bytes encoded_picture = 3;
+    bytes encoded_picture = 1;
+    int32 flags = 2;
 }
