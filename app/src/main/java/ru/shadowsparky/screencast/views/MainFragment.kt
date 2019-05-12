@@ -35,7 +35,7 @@ class MainFragment : Fragment(), Main.View {
             setButtonText("Отключиться")
         } else {
             context?.stopService(server)
-            setButtonText("Подключиться")
+            setButtonText("Старт сервера")
             print("Произошло отключение от клиента")
         }
         capRequest.isEnabled = true
@@ -79,7 +79,7 @@ class MainFragment : Fragment(), Main.View {
         super.onStart()
         presenter.attachView(this)
         capRequest.setOnClickListener {
-            if (capRequest.text == "Подключиться")
+            if (capRequest.text == "Старт сервера")
                 sendCaptureRequest()
             else {
                 setLocking(false)

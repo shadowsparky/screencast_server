@@ -161,7 +161,7 @@ class ProjectionServer : Service(), Writeable {
 
     private fun startServer() = GlobalScope.launch(Dispatchers.IO)  {
         try {
-            mServerSocket = ServerSocket(DEFAULT_PORT)
+            mServerSocket = ServerSocket(DEFAULT_PORT, 1)
         } catch (e: BindException) {
             reason = "Данный адрес уже используется"
             handling = false

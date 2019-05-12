@@ -86,6 +86,6 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         attachSetting(SettingsChoose.PASSWORD)
         settings_layout.addView(SettingsItem.generateNewSection("Остальное", context!!))
         attachSetting(SettingsChoose.WAITING)
-        settings_layout.addView(SettingsItem.generateCopyright("AVB Cast.\nCreated By Shadowsparky, in 2019", context!!))
+        settings_layout.addView(SettingsItem.generateCopyright("AVB Cast V1.2D", context!!))
     }
 }
