@@ -58,9 +58,7 @@ class MainFragment : Fragment(), Main.View {
         toast.show(context!!, message)
     }
 
-    override fun sendCaptureRequest() {
-        startActivityForResult(manager.createScreenCaptureIntent(), Constants.REQUEST_CODE)
-    }
+    override fun sendCaptureRequest() = startActivityForResult(manager.createScreenCaptureIntent(), Constants.REQUEST_CODE)
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

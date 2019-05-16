@@ -67,7 +67,6 @@ class ProjectionServer : Service(), Writeable {
     private var mCodec: MediaCodec? = null
     private var mFormat: MediaFormat? = null
     private var mCallback: MediaCodec.Callback? = null
-    private val mSendingBuffers = Injection.provideByteQueue()
     private val log: Logger = Injection.provideLogger()
     private val mUtils: Utils = Injection.provideUtils()
     private var notification: Notification? = null
