@@ -29,7 +29,7 @@ class SharedUtils(val context: Context) {
             write(SettingsChoose.WAITING.name, SettingsFragment.waiting_list[2])
     }
 
-    val preferences: SharedPreferences = context.getSharedPreferences("", MODE_PRIVATE)
+    private val preferences: SharedPreferences = context.getSharedPreferences("", MODE_PRIVATE)
 
     fun write(key: String, content: String) : Boolean = preferences.edit().putString(key, content).commit()
     fun remove(key: String) : Boolean = preferences.edit().remove(key).commit()

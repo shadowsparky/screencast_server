@@ -25,15 +25,13 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     companion object {
         val BITRATE = listOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
         val quality_list = listOf("${BITRATE[0]} кб (Мин. качество)", "${BITRATE[1]} кб", "${BITRATE[2]} кб", "${BITRATE[3]} кб", "${BITRATE[4]} мб", "${BITRATE[5]} мб", "${BITRATE[6]} мб", "${BITRATE[7]} мб (Макс. качество)")
-        val framerate_list = listOf("60", "45", "30", "15", "5", "1")
+        val framerate_list = listOf("60", "45", "30", "15", "5")
         val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
     }
     private lateinit var shared: SharedUtils
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_settings, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
+            = inflater.inflate(R.layout.fragment_settings, container, false)
 
     private fun attachSetting(choose: SettingsChoose) {
         val first = SettingsItem(context!!, settings_layout, choose, this)
@@ -77,7 +75,7 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     }
 
 
-    fun loadSetting() {
+    private fun loadSetting() {
         settings_layout.removeAllViews()
         settings_layout.addView(SettingsItem.generateNewSection("Настройка изображения", context!!))
         attachSetting(SettingsChoose.IMAGE_QUALITY)
