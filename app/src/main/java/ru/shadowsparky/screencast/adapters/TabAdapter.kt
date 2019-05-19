@@ -16,12 +16,13 @@ class TabAdapter(
 ) : FragmentStatePagerAdapter(manager) {
 
     override fun getItem(position: Int): Fragment {
-        var fragment: Fragment? = null
-        when(position) {
-            0 -> fragment = MainFragment()
-            1 -> fragment = SettingsFragment()
+        val fragment: Fragment = when(position) {
+            0 -> MainFragment()
+            1 -> SettingsFragment()
+            else -> throw NullPointerException("Unrecognized position $position")
         }
-        return fragment!!
+        fragment.retainInstance = true
+        return fragment
     }
 
     override fun getCount(): Int {

@@ -19,28 +19,28 @@ import ru.shadowsparky.screencast.interfaces.Main
 class CommunicationReceiver(private val view: Main.View) : BroadcastReceiver() {
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val receiver_code = intent!!.getIntExtra(RECEIVER_CODE, -1)
-        if (receiver_code == RECEIVER_DEFAULT_CODE) {
-            val action = intent.getIntExtra(ACTION, -1)
-            val reason = intent.getStringExtra(REASON)
-            if (action != -1) {
-                when(action) {
-                    CONNECTION_STARTED_CODE -> {
-                        view.print("Соединение установлено")
-                        view.setLocking(true)
-                    }
-                    CONNECTION_CLOSED_CODE -> {
-                        val message = if (reason != NOTHING) {
-                            "Во время подключения произошла ошибка. $reason"
-                        } else {
-                            "Соединение разорвано"
-                        }
-                        view.print(message)
-                        view.setLocking(false)
-                    }
-                }
-            }
-        }
+//        val receiver_code = intent!!.getIntExtra(RECEIVER_CODE, -1)
+//        if (receiver_code == RECEIVER_DEFAULT_CODE) {
+//            val action = intent.getIntExtra(ACTION, -1)
+//            val reason = intent.getStringExtra(REASON)
+//            if (action != -1) {
+//                when(action) {
+//                    CONNECTION_STARTED_CODE -> {
+//                        view.print("Соединение установлено")
+//                        view.setLocking(true)
+//                    }
+//                    CONNECTION_CLOSED_CODE -> {
+//                        val message = if (reason != NOTHING) {
+//                            "Во время подключения произошла ошибка. $reason"
+//                        } else {
+//                            "Соединение разорвано"
+//                        }
+//                        view.print(message)
+//                        view.setLocking(false)
+//                    }
+//                }
+//            }
+//        }
     }
 
 }

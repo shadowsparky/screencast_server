@@ -22,10 +22,10 @@ class Logger {
     }
 
     fun printError(message: String, XTAG: String = Constants.TAG, threadDump: Boolean = false) {
-        print(ERROR, getMessage(message, threadDump))
+        print(ERROR, XTAG, getMessage(message, threadDump))
     }
 
     fun printDebug(message: String, XTAG: String = Constants.TAG, threadDump: Boolean = false) {
-        print(DEBUG, getMessage(message, threadDump))
+        print(DEBUG, XTAG, getMessage(message, threadDump))
     }
 }

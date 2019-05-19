@@ -3,7 +3,6 @@
     package="ru.shadowsparky.screencast">
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.INJECT_EVENTS"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <application
         android:allowBackup="true"
@@ -19,6 +18,7 @@
             </intent-filter>
         </activity>
         <service android:name=".ProjectionServer"></service>
+        <service android:name=".ProjectionService"></service>
     </application>
 
 </manifest>

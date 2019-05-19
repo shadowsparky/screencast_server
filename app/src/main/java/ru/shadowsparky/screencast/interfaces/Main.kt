@@ -9,12 +9,8 @@ import android.content.Intent
 
 interface Main {
     interface View {
-        fun startServer(server: Intent)
-        fun print(message: String)
-        fun showToast(message: String)
+        fun startServer(data: Intent)
         fun sendCaptureRequest()
-        fun setLocking(flag: Boolean)
-        fun setButtonText(text: String)
     }
     interface Presenter {
         fun attachView(view: View)
