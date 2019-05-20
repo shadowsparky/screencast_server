@@ -7,6 +7,7 @@ package ru.shadowsparky.screencast.extras
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -14,7 +15,7 @@ import androidx.core.app.NotificationCompat
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_NAME
 
-class Notifications(private val context: Context, private val dismiss: NotificationCompat.Action? = null) {
+class Notifications(private val context: Context, private val dismiss: PendingIntent) {
 
     @RequiresApi(Build.VERSION_CODES.O)
     private fun newNotification(notificationManager: NotificationManager) : Notification {
@@ -24,7 +25,7 @@ class Notifications(private val context: Context, private val dismiss: Notificat
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
-//                .addAction(dismiss)
+//                .addAction(android.R.drawable.ic_menu_share, "Отключиться", dismiss)
                 .build()
     }
 
@@ -33,11 +34,12 @@ class Notifications(private val context: Context, private val dismiss: Notificat
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
+//                .addAction(android.R.drawable.ic_menu_share, "Отключиться", dismiss)
                 .build()
     }
 
     fun provideNotification(notificationManager: NotificationManager) : Notification =
-            if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
                 newNotification(notificationManager)
             } else {
                 oldNotification()

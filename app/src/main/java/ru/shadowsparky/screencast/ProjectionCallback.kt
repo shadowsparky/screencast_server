@@ -12,6 +12,7 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Sendeable
+import java.lang.Exception
 import java.util.concurrent.LinkedBlockingQueue
 
 class ProjectionCallback(
@@ -19,16 +20,21 @@ class ProjectionCallback(
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     var handling: Boolean = false
+    private val log = Injection.provideLogger()
     private val TAG = javaClass.name
 
     override fun onOutputBufferAvailable(codec: MediaCodec, index: Int, info: MediaCodec.BufferInfo) {
         if (handling) {
-            val buffer = codec.getOutputBuffer(index)
-            buffer!!.position(info.offset)
-            val buf = ByteArray(buffer.remaining())
-            buffer.get(buf, 0, info.size)
-            sender.sendPicture(buf)
-            mCodec.releaseOutputBuffer(index, false)
+            try {
+                val buffer = codec.getOutputBuffer(index)
+                buffer!!.position(info.offset)
+                val buf = ByteArray(buffer.remaining())
+                buffer.get(buf, 0, info.size)
+                sender.sendPicture(buf)
+                mCodec.releaseOutputBuffer(index, false)
+            } catch (e: IllegalStateException) {
+                log.printDebug("IllegalStateException on ProjectionCallback", TAG)
+            }
         }
     }
 

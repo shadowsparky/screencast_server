@@ -4,10 +4,7 @@
 
 package ru.shadowsparky.screencast
 
-import android.app.Activity
-import android.app.Notification
-import android.app.NotificationManager
-import android.app.Service
+import android.app.*
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -18,6 +15,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
@@ -27,6 +25,7 @@ import android.view.WindowManager
 import com.google.protobuf.ByteString
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
 import ru.shadowsparky.screencast.interfaces.Printeable
@@ -60,6 +59,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     var printeable: Printeable? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        log.printDebug("Command started: ${intent.hashCode()}", TAG)
         return START_NOT_STICKY
     }
 
@@ -100,9 +100,13 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     }
 
     open fun createNotification() {
+        val skipIntent = Intent(baseContext, ServerBase::class.java).apply {
+            action = "CLOSE"
+        }
+        val skipPendingIntent = PendingIntent.getBroadcast(this, 0, skipIntent, PendingIntent.FLAG_UPDATE_CURRENT)
         val notificationService = baseContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mNotification = Notifications(baseContext).provideNotification(notificationService)
-        startForeground(Constants.DEFAULT_NOTIFICATION_ID, mNotification)
+        mNotification = Notifications(baseContext, skipPendingIntent).provideNotification(notificationService)
+        startForeground(DEFAULT_NOTIFICATION_ID, mNotification)
     }
 
     open fun updateDisplayInfo() {
@@ -152,6 +156,11 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         if (mClient?.isClosed == false)
             mClient?.close()
         release()
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            stopForeground(Constants.DEFAULT_NOTIFICATION_ID)
+        } else {
+            // TODO: Implementing Stop foreground for Marshmallow Devices
+        }
         printeable?.print("Соединение с сервером было разорвано")
     }
 
