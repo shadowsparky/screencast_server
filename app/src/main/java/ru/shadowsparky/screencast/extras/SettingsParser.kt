@@ -37,7 +37,7 @@ class SettingsParser(context: Context) {
         return when (bitrate) {
             existsBit[0] -> DEFAULT_BITRATE / 16
             existsBit[1] -> DEFAULT_BITRATE / 8
-            existsBit[2] -> DEFAULT_BITRATE / 1
+            existsBit[2] -> DEFAULT_BITRATE / 4
             existsBit[3] -> DEFAULT_BITRATE / 2
             existsBit[4] -> DEFAULT_BITRATE
             existsBit[5] -> DEFAULT_BITRATE * 3

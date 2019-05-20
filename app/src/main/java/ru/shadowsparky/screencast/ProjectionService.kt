@@ -32,7 +32,7 @@ class ProjectionService : ServerBase() {
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        if ((mServer != null) and (mServer?.isClosed == false)) {
+        if ((mClient != null) and (mClient?.isConnected == true)) {
             GlobalScope.launch(IO) {
                 log.printDebug("Configuration Changed", TAG)
                 stop()

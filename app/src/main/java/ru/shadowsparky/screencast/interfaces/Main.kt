@@ -11,6 +11,9 @@ interface Main {
     interface View {
         fun startServer(data: Intent)
         fun sendCaptureRequest()
+        fun setButtonText(text: String)
+        fun setStatusText(text: String)
+        fun showToast(text: String)
     }
     interface Presenter {
         fun attachView(view: View)

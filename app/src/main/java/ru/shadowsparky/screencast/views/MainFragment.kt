@@ -24,10 +24,9 @@ import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.extras.Constants
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Printeable
-import ru.shadowsparky.screencast.interfaces.Main
 import java.lang.RuntimeException
 
-class MainFragment : Fragment(), Main.View, Printeable {
+class MainFragment : Fragment(), Printeable {
     private val TAG = "MainFragment"
     private lateinit var binder: ProjectionService.ProjectionBinder
     private lateinit var mConnection: ServiceConnection
@@ -116,7 +115,7 @@ class MainFragment : Fragment(), Main.View, Printeable {
         }
     }
 
-    override fun startServer(data: Intent) {
+    private fun startServer(data: Intent) {
         GlobalScope.launch {
             log.printDebug("Requested trying to connect to server...", TAG)
             val result = mService.launch(data)
@@ -129,7 +128,7 @@ class MainFragment : Fragment(), Main.View, Printeable {
         }
     }
 
-    override fun sendCaptureRequest() = startActivityForResult(manager.createScreenCaptureIntent(), Constants.REQUEST_CODE)
+    private fun sendCaptureRequest() = startActivityForResult(manager.createScreenCaptureIntent(), Constants.REQUEST_CODE)
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)

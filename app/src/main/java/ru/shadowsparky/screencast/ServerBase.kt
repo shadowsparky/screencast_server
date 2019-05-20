@@ -5,8 +5,10 @@
 package ru.shadowsparky.screencast
 
 import android.app.*
+import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.graphics.Point
 import android.hardware.display.DisplayManager
 import android.hardware.display.VirtualDisplay
@@ -33,30 +35,37 @@ import ru.shadowsparky.screencast.interfaces.Sendeable
 import ru.shadowsparky.screencast.proto.HandledPictureOuterClass
 import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
 import java.io.Closeable
+import java.lang.NullPointerException
 import java.net.*
 
 abstract class ServerBase : Service(), Sendeable, Closeable {
+    val DISMISS = "DISMISS"
     protected abstract val TAG: String
     protected lateinit var mData: Intent
-    protected lateinit var mProjectionManager: MediaProjectionManager
-    protected var mProjection: MediaProjection? = null
+    private lateinit var mProjectionManager: MediaProjectionManager
+    private var mProjection: MediaProjection? = null
     protected var mServer: ServerSocket? = null
     protected var mClient: Socket? = null
-    protected var width = DEFAULT_WIDTH
-    protected var height = DEFAULT_HEIGHT
-    protected var mSurface: Surface? = null
-    protected var mVirtualDisplay: VirtualDisplay? = null
-    protected var mDisplay: Display? = null
-    protected var mCodec: MediaCodec? = null
-    protected var mFormat: MediaFormat? = null
-    protected var mCallback: ProjectionCallback? = null
+    private var width = DEFAULT_WIDTH
+    private var height = DEFAULT_HEIGHT
+    private var mSurface: Surface? = null
+    private var mVirtualDisplay: VirtualDisplay? = null
+    private var mDisplay: Display? = null
+    private var mCodec: MediaCodec? = null
+    private var mFormat: MediaFormat? = null
+    private var mCallback: ProjectionCallback? = null
     protected val log: Logger = Injection.provideLogger()
-    protected val mUtils: Utils = Injection.provideUtils()
-    protected lateinit var mNotification: Notification
-    protected lateinit var mShared: SharedUtils
-    protected lateinit var mSettingsParser: SettingsParser
-    protected var mEncoderThread = HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
+    private val mUtils: Utils = Injection.provideUtils()
+    private lateinit var mNotification: Notification
+    private lateinit var mShared: SharedUtils
+    private lateinit var mSettingsParser: SettingsParser
+    private var mEncoderThread = HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
     var printeable: Printeable? = null
+    protected val receiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            this@ServerBase.close()
+        }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         log.printDebug("Command started: ${intent.hashCode()}", TAG)
@@ -69,7 +78,13 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         mShared = Injection.provideSharedUtils(baseContext)
         mSettingsParser = Injection.provideSettingsParser(baseContext)
         mProjectionManager = baseContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
+        registerReceiver(receiver, IntentFilter(DISMISS))
         mEncoderThread.start()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 
     open fun createServer() : Boolean {
@@ -99,21 +114,35 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         return true
     }
 
-    open fun createNotification() {
-        val skipIntent = Intent(baseContext, ServerBase::class.java).apply {
-            action = "CLOSE"
-        }
-        val skipPendingIntent = PendingIntent.getBroadcast(this, 0, skipIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+    protected open fun createNotification() : Notification {
+        val dismissIntent = Intent(DISMISS)
+        val dismissPI = PendingIntent.getBroadcast(this, 0, dismissIntent, PendingIntent.FLAG_CANCEL_CURRENT)
         val notificationService = baseContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        mNotification = Notifications(baseContext, skipPendingIntent).provideNotification(notificationService)
+        mNotification = Notifications(baseContext, dismissPI).provideNotification(notificationService)
         startForeground(DEFAULT_NOTIFICATION_ID, mNotification)
+        return mNotification
     }
 
-    open fun updateDisplayInfo() {
+    protected open fun updateDisplayInfo() {
         val size = Point()
         mUtils.overrideGetSize(mDisplay!!, size)
         width = size.x
         height = size.y
+    }
+
+    protected open fun configureMediaFormat() {
+        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
+        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE,mSettingsParser.getBitrate())
+        mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
+        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mSettingsParser.getFramerate().toFloat())
+        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
+    }
+
+    protected open fun configureMediaCodec() {
+        mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
+        mCallback = ProjectionCallback(this, mCodec!!)
+        mCodec!!.setCallback(mCallback, Handler(mEncoderThread.looper))
+        mCodec!!.configure(mFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
     }
 
     open fun setupProjection() {
@@ -121,21 +150,14 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         mDisplay = (getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         updateDisplayInfo()
         sendPreparingData()
-        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
-        mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE,mSettingsParser.getBitrate())
-        mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
-        mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mSettingsParser.getFramerate().toFloat())
-        mFormat!!.setInteger(MediaFormat.KEY_I_FRAME_INTERVAL, 1)
-        mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
-        mCallback = ProjectionCallback(this, mCodec!!)
-        mCodec!!.setCallback(mCallback, Handler(mEncoderThread.looper))
-        mCodec!!.configure(mFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)
+        configureMediaFormat()
+        configureMediaCodec()
         mSurface = mCodec!!.createInputSurface()
     }
 
     open fun start() {
         mCodec!!.start()
-        mCallback?.handling = true
+        mCallback!!.handling = true
         mVirtualDisplay = mProjection!!.createVirtualDisplay(Constants.DEFAULT_PROJECTION_NAME, width, height, Constants.DEFAULT_DPI, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mSurface, null, Handler(mEncoderThread.looper))
     }
 
