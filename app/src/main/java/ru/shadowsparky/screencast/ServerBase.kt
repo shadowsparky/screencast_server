@@ -17,7 +17,6 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
@@ -30,15 +29,22 @@ import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
-import ru.shadowsparky.screencast.interfaces.Printeable
+import ru.shadowsparky.screencast.interfaces.Actionable
 import ru.shadowsparky.screencast.interfaces.Sendeable
 import ru.shadowsparky.screencast.proto.HandledPictureOuterClass
 import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
 import java.io.Closeable
-import java.lang.NullPointerException
 import java.net.*
 
 abstract class ServerBase : Service(), Sendeable, Closeable {
+    enum class ConnectionResult {
+        ADDRESS_ALREADY_IN_USE,
+        WAITING_FOR_CONNECTION,
+        TIMEOUT,
+        UNEXPECTEDLY_DISCONNECTED,
+        ESTABLISHED,
+        BROKEN
+    }
     val DISMISS = "DISMISS"
     protected abstract val TAG: String
     protected lateinit var mData: Intent
@@ -60,7 +66,8 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     private lateinit var mShared: SharedUtils
     private lateinit var mSettingsParser: SettingsParser
     private var mEncoderThread = HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
-    var printeable: Printeable? = null
+    var action: Actionable? = null
+    var handling: Boolean = false
     protected val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             this@ServerBase.close()
@@ -74,7 +81,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
 
     override fun onCreate() {
         super.onCreate()
-        log.printDebug("Sever Base Created")
+        log.printDebug("Sever Base Created", TAG)
         mShared = Injection.provideSharedUtils(baseContext)
         mSettingsParser = Injection.provideSettingsParser(baseContext)
         mProjectionManager = baseContext.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
@@ -92,10 +99,10 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
             mServer = ServerSocket(DEFAULT_PORT, 1)
             mServer?.soTimeout = mSettingsParser.getWaiting()
         } catch (e: BindException) {
-            printeable?.print("Данный адрес уже используется")
+            action?.invoke(ConnectionResult.ADDRESS_ALREADY_IN_USE)
             return false
         }
-        printeable?.print("Ожидание подключения...")
+        action?.invoke(ConnectionResult.WAITING_FOR_CONNECTION)
         return true
     }
 
@@ -103,14 +110,15 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         try {
             mClient = mServer?.accept()
             mClient?.tcpNoDelay = true
+            handling = true
         } catch (e: SocketTimeoutException) {
-            printeable?.print("Превышено время ожидания")
+            action?.invoke(ConnectionResult.TIMEOUT)
             return false
         } catch (e: SocketException) {
-            printeable?.print("Соединение неожиданно прервалось")
+            action?.invoke(ConnectionResult.UNEXPECTEDLY_DISCONNECTED)
             return false
         }
-        printeable?.print("Соединение с пользователем установлено")
+        action?.invoke(ConnectionResult.ESTABLISHED)
         return true
     }
 
@@ -173,17 +181,14 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     }
 
     override fun close() {
+        val notificationService = baseContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (mServer?.isClosed == false)
             mServer?.close()
         if (mClient?.isClosed == false)
             mClient?.close()
         release()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            stopForeground(Constants.DEFAULT_NOTIFICATION_ID)
-        } else {
-            // TODO: Implementing Stop foreground for Marshmallow Devices
-        }
-        printeable?.print("Соединение с сервером было разорвано")
+        handling = false
+//        action?.invoke(ConnectionResult.BROKEN)
     }
 
     override fun sendPicture(picture: ByteArray) {
@@ -193,7 +198,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
                     .build()
             item.writeDelimitedTo(mClient?.getOutputStream())
         } catch (e: SocketException) {
-            printeable?.print("Соединение с сервером было разорвано")
+            action?.invoke(ConnectionResult.BROKEN)
         }
     }
 
@@ -206,7 +211,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
                     .build()
             data.writeDelimitedTo(mClient?.getOutputStream())
         } catch (e: SocketException) {
-            printeable?.print("Соединение с сервером было разорвано")
+            action?.invoke(ConnectionResult.BROKEN)
         }
     }
 }

@@ -24,6 +24,7 @@ class Notifications(private val context: Context, private val dismiss: PendingIn
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
+                .setAutoCancel(true)
                 .setPriority(NotificationManager.IMPORTANCE_MIN)
                 .addAction(android.R.drawable.ic_delete, "Отключиться", dismiss)
                 .build()
@@ -34,6 +35,7 @@ class Notifications(private val context: Context, private val dismiss: PendingIn
                 .setContentTitle(DEFAULT_NOTIFICATION_CHANNEL_NAME)
                 .setSmallIcon(android.R.drawable.ic_menu_camera)
                 .setOngoing(true)
+                .setAutoCancel(true)
                 .addAction(android.R.drawable.ic_delete, "Отключиться", dismiss)
                 .build()
     }
