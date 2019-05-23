@@ -17,6 +17,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
@@ -26,6 +27,7 @@ import android.view.WindowManager
 import com.google.protobuf.ByteString
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_NAME
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
@@ -70,7 +72,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     var handling: Boolean = false
     protected val receiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            this@ServerBase.close()
+            this@ServerBase.action?.invoke(ConnectionResult.UNEXPECTEDLY_DISCONNECTED)
         }
     }
 
@@ -181,14 +183,15 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     }
 
     override fun close() {
+        log.printDebug("Close invoke")
         val notificationService = baseContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (mServer?.isClosed == false)
             mServer?.close()
         if (mClient?.isClosed == false)
             mClient?.close()
         release()
+        stopForeground(true)
         handling = false
-//        action?.invoke(ConnectionResult.BROKEN)
     }
 
     override fun sendPicture(picture: ByteArray) {

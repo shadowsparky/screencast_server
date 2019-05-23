@@ -58,7 +58,6 @@ class MainPresenter(private val view: MainFragment, private val model: Main.Mode
             }
             MainFragment.ConnectionStatus.CONNECTED -> {
                 view.reset()
-                view.setButtonStatus(MainFragment.ConnectionStatus.NONE)
                 log.printDebug("Connection closed ${view.mCurrentStatus.name}", TAG)
             }
             else -> throw RuntimeException("Unrecognized Status")
