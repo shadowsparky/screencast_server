@@ -5,7 +5,6 @@
 package ru.shadowsparky.screencast.custom_views
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Color
 import android.graphics.Typeface
 import android.view.Gravity
@@ -19,6 +18,18 @@ import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Settingeable
 
+/**
+ * Элемент настроек
+ *
+ * @param context контекст
+ * @param parent родительский лейаут
+ * @param choosed_item выбранный элемент
+ * @param handler обратный вызов. Срабатывает при смене настроек
+ * @property mSettingName наименование настройки
+ * @property mCurrentSetting текущее значение
+ * @property mCard карточка
+ * @constructor Создает Tab адаптер
+ */
 class SettingsItem(context: Context, parent: LinearLayout, choosed_item: SettingsChoose, handler: Settingeable) : LinearLayout(context) {
     private val view: View
     val mSettingName: TextView
@@ -38,6 +49,13 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
     }
 
     companion object {
+        /**
+         * Используется для генерации нового раздела
+         *
+         * @param section_name название нового раздела
+         * @param context контекст
+         * @return возвращает [TextView], стилизованный под новый раздел
+         */
         fun generateNewSection(section_name: String, context: Context) : TextView {
             val result = TextView(context)
             result.text = section_name
@@ -50,6 +68,13 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
             return result
         }
 
+        /**
+         * Используется для генерации копирайта
+         *
+         * @param text текст копирайта
+         * @param context контекст
+         * @return возвращает [TextView], стилизованный под копирайт
+         */
         fun generateCopyright(text: String, context: Context) : TextView {
             val result = TextView(context)
             result.text = text
@@ -59,7 +84,7 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
             llp.setMargins(16, 30, 16, 16)
             result.layoutParams = llp
             result.setOnClickListener {
-                Injection.provideToaster().show(context, "v1.0 DEV")
+                Injection.provideToaster().show(context, "v1.0.1 DEV")
             }
             return result
         }

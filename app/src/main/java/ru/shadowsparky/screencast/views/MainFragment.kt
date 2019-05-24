@@ -23,6 +23,7 @@ import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Main
 import ru.shadowsparky.screencast.interfaces.Actionable
 import ru.shadowsparky.screencast.presenters.MainPresenter
+import java.lang.Exception
 
 class MainFragment : Fragment(), Actionable, Main.View {
     private lateinit var mediaManager : MediaProjectionManager
@@ -77,15 +78,17 @@ class MainFragment : Fragment(), Actionable, Main.View {
         mCurrentStatus = status
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? = inflater.inflate(R.layout.fragment_main, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_main, container, false)
 
     override fun bindService(connection: ServiceConnection) {
+        log.printDebug("binding connection: $connection", TAG)
         val intent = Intent(context, ProjectionService::class.java)
-        context?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        activity?.applicationContext?.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     override fun unbindService(connection: ServiceConnection) {
-        context?.unbindService(connection)
+        activity?.applicationContext?.unbindService(connection)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

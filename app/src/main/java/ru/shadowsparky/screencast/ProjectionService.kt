@@ -34,7 +34,7 @@ class ProjectionService : ServerBase() {
         super.onConfigurationChanged(newConfig)
         if (handling) {
             GlobalScope.launch(IO) {
-                log.printDebug("Configuration Changed", TAG)
+                log.printDebug("Configuration Changed")
                 stop()
                 setupProjection()
                 start()
