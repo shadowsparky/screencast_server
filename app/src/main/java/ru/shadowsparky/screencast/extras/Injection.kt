@@ -6,6 +6,7 @@ package ru.shadowsparky.screencast.extras
 
 import android.content.Context
 import android.content.SharedPreferences
+import ru.shadowsparky.screencast.ProjectionService
 
 /**
  * Статический объект, используемый для внедрения паттерна Dependency Injection

@@ -5,10 +5,10 @@
 package ru.shadowsparky.screencast.views
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings.*
 import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
@@ -17,11 +17,25 @@ import ru.shadowsparky.screencast.dialogs.ChooseDialog
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.extras.SettingsParser
 import ru.shadowsparky.screencast.extras.SharedUtils
+import ru.shadowsparky.screencast.extras.Toaster
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 import ru.shadowsparky.screencast.interfaces.Settingeable
-import ru.shadowsparky.screencast.extras.Toaster
 
-
+/**
+ * Фрагмент, используемый в настройках приложения
+ *
+ * @property toast подробнее: [Toaster]
+ * @property shared подробнее: [SharedUtils]
+ * @property BITRATE список возможного битрейта
+ * @property quality_list список возможного качества
+ * @property framerate_list список возможного количества кадров в секунду
+ * @property waiting_list список возможных значений для ожидания
+ * @see [Fragment]
+ * @see [Settingeable]
+ * @see [ChangeSettingsHandler]
+ * @author shadowsparky
+ * @since v1.0.0
+ */
 class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
     companion object {
@@ -32,18 +46,33 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     }
     private lateinit var shared: SharedUtils
 
+    /**
+     * Система вызывает этот метод при первом отображении пользовательского интерфейса фрагмента
+     * на дисплее. Для прорисовки пользовательского интерфейса фрагмента следует возвратить из
+     * этого метода объект [View], который является корневым в макете фрагмента.
+     * Если фрагмент не имеет пользовательского интерфейса, можно возвратить null.
+     *
+     * @see [Fragment]
+     * @since v1.0.0
+     */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
             = inflater.inflate(R.layout.fragment_settings, container, false)
 
+    /**
+     * Вставка настройки в фрагмент
+     *
+     * @author shadowsparky
+     * @since v1.0.0
+     */
     private fun attachSetting(choose: SettingsChoose) {
         val first = SettingsItem(context!!, settings_layout, choose, this)
         first.mSettingName.text = SettingsParser.getSectionName(choose)
-        if (choose == SettingsChoose.PASSWORD) {
-            val exists = shared.read(choose.name) != ""
-            first.mCurrentSetting.text = if (exists) "Существует" else "Отсутствует"
-        } else  {
-            first.mCurrentSetting.text = shared.read(choose.name)
-        }
+//        if (choose == SettingsChoose.PASSWORD) {
+//            val exists = shared.read(choose.name) != ""
+//            first.mCurrentSetting.text = if (exists) "Существует" else "Отсутствует"
+//        } else  {
+//            first.mCurrentSetting.text = shared.read(choose.name)
+//        }
     }
 
     override fun onSettingsChanged(choose: SettingsChoose, value: String) {
@@ -69,6 +98,12 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         }
     }
 
+    /**
+     * Инициализация списка возможного количества кадров в секунду
+     *
+     * @author shadowsparky
+     * @since v1.0.0
+     */
     fun initFramerate() {
         var framerate = SettingsParser(context!!).getFramerate()
         while (framerate >= 1) {
@@ -79,6 +114,13 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
             framerate_list.add("1")
     }
 
+    /**
+     * Вызывается, когда фрагмент виден пользователю. Обычно это связано с onStart () жизненного цикла, содержащего активность.
+     * Если вы переопределите этот метод, вы должны обратиться к реализации суперкласса.
+     *
+     * @see [Fragment]
+     * @since v1.0.0
+     */
     override fun onStart() {
         super.onStart()
         shared = Injection.provideSharedUtils(context!!)
@@ -87,14 +129,19 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         loadSetting()
     }
 
-
+    /**
+     * Отрисовка настроек на фрагменте
+     *
+     * @author shadowsparky
+     * @since v1.0.0
+     */
     private fun loadSetting() {
         settings_layout.removeAllViews()
         settings_layout.addView(SettingsItem.generateNewSection("Настройка изображения", context!!))
         attachSetting(SettingsChoose.IMAGE_QUALITY)
         attachSetting(SettingsChoose.FRAMERATE)
-        settings_layout.addView(SettingsItem.generateNewSection("Защита", context!!))
-        attachSetting(SettingsChoose.PASSWORD)
+//        settings_layout.addView(SettingsItem.generateNewSection("Защита", context!!))
+//        attachSetting(SettingsChoose.PASSWORD)
         settings_layout.addView(SettingsItem.generateNewSection("Остальное", context!!))
         attachSetting(SettingsChoose.WAITING)
         settings_layout.addView(SettingsItem.generateCopyright("AVB Cast V1.2D", context!!))

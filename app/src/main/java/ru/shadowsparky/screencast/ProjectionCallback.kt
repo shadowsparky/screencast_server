@@ -31,7 +31,6 @@ class ProjectionCallback(
         private val mCodec: MediaCodec
 ) : MediaCodec.Callback() {
     var handling: Boolean = false
-
     private val log = Injection.provideLogger()
     private val TAG = javaClass.name
 
