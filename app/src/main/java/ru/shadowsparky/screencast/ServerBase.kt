@@ -17,7 +17,6 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
-import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
@@ -27,7 +26,6 @@ import android.view.WindowManager
 import com.google.protobuf.ByteString
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
-import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_NAME
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_WIDTH
@@ -63,7 +61,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
     private var mFormat: MediaFormat? = null
     private var mCallback: ProjectionCallback? = null
     protected val log: Logger = Injection.provideLogger()
-    private val mUtils: Utils = Injection.provideUtils()
+    private val mUtils: DisplayUtils = Injection.provideUtils()
     private lateinit var mNotification: Notification
     private lateinit var mShared: SharedUtils
     private lateinit var mSettingsParser: SettingsParser

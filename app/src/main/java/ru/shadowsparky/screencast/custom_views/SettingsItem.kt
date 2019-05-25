@@ -28,7 +28,8 @@ import ru.shadowsparky.screencast.interfaces.Settingeable
  * @property mSettingName наименование настройки
  * @property mCurrentSetting текущее значение
  * @property mCard карточка
- * @constructor Создает Tab адаптер
+ * @since v1.0.0
+ * @author shadowsparky
  */
 class SettingsItem(context: Context, parent: LinearLayout, choosed_item: SettingsChoose, handler: Settingeable) : LinearLayout(context) {
     private val view: View
@@ -38,14 +39,15 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
 
     init {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        view = inflater.inflate(R.layout.settings_item, parent, false)
+        view = inflater.inflate(R.layout.settings_item, parent, false) // вставка элемента с настройкой во view
+        /* поиск элементов вставленного view */
         this.mSettingName = view.findViewById(R.id.setting_name)
         this.mCurrentSetting = view.findViewById(R.id.current_setting)
         this.mCard = view.findViewById(R.id.setting_card)
         this.mCard.setOnClickListener {
-            handler.onSettingChoosed(choosed_item)
+            handler.onSettingChoosed(choosed_item) // при нажатии на карточку срабатывает callback
         }
-        parent.addView(view)
+        parent.addView(view) // добавление сгенерированного элемента в родительский лейаут
     }
 
     companion object {

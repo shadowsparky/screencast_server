@@ -11,11 +11,12 @@ import ru.shadowsparky.screencast.views.MainFragment
 import ru.shadowsparky.screencast.views.SettingsFragment
 
 /**
- * Используется для вставки фрагментов в Tab. Исключительно для дизайна.
+ * Используется для вставки фрагментов в Tab.
  *
- * @param manager менеджер фраментов, использующийся для "вставки" фрагметов в Tab
+ * @param manager менеджер фраментов, использующийся для "вставки" фрагметов в Tab. Подробнее: [FragmentManager]
  * @param tab_count количество табов
- * @constructor Создает Tab адаптер
+ * @since v1.0.0
+ * @author shadowsparky
  */
 class TabAdapter(
         manager: FragmentManager,

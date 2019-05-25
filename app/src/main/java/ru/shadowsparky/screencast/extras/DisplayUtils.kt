@@ -9,7 +9,7 @@ import android.view.Display
 import java.io.ByteArrayInputStream
 
 
-class Utils {
+class DisplayUtils {
     fun overrideGetSize(display: Display, outSize: Point) {
         try {
             val pointClass = Class.forName("android.graphics.Point")

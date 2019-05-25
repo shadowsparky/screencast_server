@@ -4,6 +4,9 @@
 
 package ru.shadowsparky.screencast.extras
 
+/**
+ * Статический Singleton объект, в котором указаны все константы, используемые в проекте
+ */
 object Constants {
     val NOT_FOUND_IPV4 = "ipv4 not found"
     val TAG = "MAIN_TAG"
@@ -26,8 +29,6 @@ object Constants {
     val DEFAULT_NOTIFICATION_CHANNEL_NAME = "Проецирование на экран"
     val DEFAULT_NOTIFICATION_ID = 228
     val DEFAULT_WIDTH = 1280
-    val DEFAULT_WIDTH_2 = 1920
-    val DEFAULT_HEIGHT_2 = 1080
     val DEFAULT_HEIGHT = 720
     val DEFAULT_DPI = 320
     val DEFAULT_BITRATE = 1000000
