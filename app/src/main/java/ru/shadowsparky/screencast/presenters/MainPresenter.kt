@@ -17,7 +17,19 @@ import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Main
 import ru.shadowsparky.screencast.models.MainModel
 import ru.shadowsparky.screencast.views.MainFragment
+import ru.shadowsparky.screencast.extras.Logger
 
+/**
+ * Presenter из MVP
+ *
+ * @property TAG тэг текущего Presenter'a
+ * @property binder [ProjectionService.ProjectionBinder], предназначенный для связывания View и Service
+ * @property mConnection [ServiceConnection], предназначенный для привязки сервиса, используемого во View
+ * @property log подробнее: [Logger]
+ * @see [Main.Presenter]
+ * @since v1.0.0
+ * @author shadowsparky
+ */
 class MainPresenter(private val view: MainFragment, private val model: Main.Model = MainModel()) : Main.Presenter {
     private val TAG = "MainPresenter"
     private lateinit var binder: ProjectionService.ProjectionBinder
@@ -50,17 +62,16 @@ class MainPresenter(private val view: MainFragment, private val model: Main.Mode
     }
 
     override fun onLaunchButtonClicked() {
-        log.printDebug("LAUNCH BUTTON CLICKED. CURRENT STATUS: ${view.mCurrentStatus.name}")
         when(view.mCurrentStatus) {
-            MainFragment.ConnectionStatus.NONE -> {
+            MainFragment.ConnectionStatus.NONE -> { // если подключение не установлено
                 view.sendCaptureRequest()
                 log.printDebug("Connection started", TAG)
             }
-            MainFragment.ConnectionStatus.CONNECTED -> {
+            MainFragment.ConnectionStatus.CONNECTED -> { // если подключение уже установлено
                 view.reset()
                 log.printDebug("Connection closed ${view.mCurrentStatus.name}", TAG)
             }
-            else -> throw RuntimeException("Unrecognized Status")
+            else -> throw RuntimeException("Unrecognized Status") // так не бывает
         }
     }
 
@@ -68,9 +79,9 @@ class MainPresenter(private val view: MainFragment, private val model: Main.Mode
         val result = model.launchService(view.mService, data!!)
         view.setLoading(false)
         if (!result)
-            view.reset()
+            view.reset() // если сервис не запустился, то происходит сброс
         else
-            view.setButtonStatus(MainFragment.ConnectionStatus.CONNECTED)
+            view.setButtonStatus(MainFragment.ConnectionStatus.CONNECTED) // если сервис запустился, то статус изменяется на "подключен"
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

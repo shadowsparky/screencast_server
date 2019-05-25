@@ -9,10 +9,24 @@ import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.views.SettingsFragment
 
+/**
+ * Вспомогательный класс для парсинга выбранных пользователем настроек, чтобы работать с ними
+ *
+ * @param context [Context] из Android SDK
+ * @property shared переменная, предназначенная для работы с SharedPreferences из Android SDK [SharedUtils]
+ * @since v1.0.0
+ * @author shadowsparky
+ */
 class SettingsParser(context: Context) {
     private val shared = Injection.provideSharedUtils(context)
 
     companion object {
+        /**
+         * Конвертация [SettingsChoose] в строковое значение
+         * @param choose подробнее: [SettingsChoose]
+         * @since v1.0.0
+         * @author shadowsparky
+         */
         fun getSectionName(choose: SettingsChoose): String {
             return when (choose) {
                 SettingsChoose.IMAGE_QUALITY -> "Битрейт"
@@ -24,13 +38,33 @@ class SettingsParser(context: Context) {
         }
     }
 
+    /**
+     * Получение выбранного пользователем Framerate
+     * @return выбранный Framerate в настройках. По умолчанию максимально поддерживаемый Android устройством Framerate.
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun getFramerate() : Int {
         val framerate_str = shared.read(SettingsChoose.FRAMERATE.name)
         return Integer.parseInt(framerate_str)
     }
 
+    /**
+     * Парсинг битрейта.
+     *
+     * @return пропаршенный Bitrate
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     private fun parseBitrate() : Float = parseValue(SettingsChoose.IMAGE_QUALITY, " ")
 
+    /**
+     * Получение битрейта.
+     *
+     * @return выбранный Bitrate в настройках. По умолчанию: [DEFAULT_BITRATE]
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun getBitrate() : Int {
         val bitrate = parseBitrate().toInt()
         val existsBit = SettingsFragment.BITRATE
@@ -47,13 +81,28 @@ class SettingsParser(context: Context) {
         }
 
     }
-
+    /**
+     * Парсинг времени ожидания.
+     *
+     * @return пропаршенное время ожидания, умноженное на 1000 (чтобы получить время в секундах)
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun getWaiting() : Int = parseValue(SettingsChoose.WAITING, " секунд").toInt() * 1000
 
+    /**
+     * Удобный метод для парсинга
+     *
+     * @param choose выбранный параметр настроек
+     * @param delimiter разделитель
+     * @param index индекс пропаршенного значения
+     * @return Пропаршенное значение
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     private fun parseValue(choose: SettingsChoose, delimiter: String = "", index: Int = 0) : Float {
         val str = shared.read(choose.name)
         val parsed_value = str.split(delimiter)
         return Integer.parseInt(parsed_value[index]).toFloat()
     }
-
 }

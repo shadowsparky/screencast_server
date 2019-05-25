@@ -9,6 +9,7 @@ import android.content.Context
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.ListView
+import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.choose_dialog.*
 import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
@@ -35,6 +36,14 @@ class ChooseDialog(
         private val choose: SettingsChoose
 ) : Dialog(context_) {
 
+    /**
+     * Система вызывает этот метод, когда создает фрагмент.
+     * В своей реализации разработчик должен инициализировать ключевые компоненты фрагмента,
+     * которые требуется сохранить, когда фрагмент находится в состоянии паузы или возобновлен после остановки.
+     *
+     * @see [Dialog]
+     * @since v1.0.0
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.choose_dialog) // применение лейаута диалога

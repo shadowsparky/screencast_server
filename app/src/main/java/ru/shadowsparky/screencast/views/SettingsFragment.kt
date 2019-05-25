@@ -19,13 +19,15 @@ import ru.shadowsparky.screencast.extras.SettingsParser
 import ru.shadowsparky.screencast.extras.SharedUtils
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 import ru.shadowsparky.screencast.interfaces.Settingeable
+import ru.shadowsparky.screencast.extras.Toaster
+
 
 class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
     companion object {
         val BITRATE = listOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
         val quality_list = listOf("${BITRATE[0]} кб (Мин. качество)", "${BITRATE[1]} кб", "${BITRATE[2]} кб", "${BITRATE[3]} кб", "${BITRATE[4]} мб", "${BITRATE[5]} мб", "${BITRATE[6]} мб", "${BITRATE[7]} мб (Макс. качество)")
-        val framerate_list = listOf("60", "45", "30", "15", "5")
+        val framerate_list = ArrayList<String>()
         val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
     }
     private lateinit var shared: SharedUtils
@@ -67,10 +69,21 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         }
     }
 
+    fun initFramerate() {
+        var framerate = SettingsParser(context!!).getFramerate()
+        while (framerate >= 1) {
+            framerate_list.add("$framerate")
+            framerate -= 5
+        }
+        if (!framerate_list.contains("1"))
+            framerate_list.add("1")
+    }
+
     override fun onStart() {
         super.onStart()
         shared = Injection.provideSharedUtils(context!!)
         shared.initialize()
+        initFramerate()
         loadSetting()
     }
 

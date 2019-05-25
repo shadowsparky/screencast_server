@@ -12,8 +12,22 @@ import android.view.WindowManager
 import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.views.SettingsFragment
 
+/**
+ * Обёртка используемая для работы с [SharedPreferences]
+ *
+ * @param context [Context] из Android SDK
+ * @property preferences [SharedPreferences] из Android SDK
+ * @since v1.0.0
+ * @author shadowsparky
+ */
 class SharedUtils(val context: Context) {
 
+    /**
+     * Инициализация стандартных настроек
+     *
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun initialize() {
         val display = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
         val size = Point()
@@ -31,12 +45,46 @@ class SharedUtils(val context: Context) {
 
     private val preferences: SharedPreferences = context.getSharedPreferences("", MODE_PRIVATE)
 
+    /**
+     * Записывание параметра в SharedPreferences
+     *
+     * @param key ключ
+     * @param content значение параметра
+     * @return true если запись прошла успешно, иначе false
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun write(key: String, content: String) : Boolean = preferences.edit().putString(key, content).commit()
+    /**
+     * Удаление параметра из SharedPreferences
+     *
+     * @param key ключ
+     * @return true если удаление прошло успешно, иначе false
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun remove(key: String) : Boolean = preferences.edit().remove(key).commit()
+
+    /**
+     * Полная очистка [SharedPreferences]
+     *
+     * @return всегда true
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun removeAll() : Boolean {
         preferences.edit().clear().apply()
         initialize()
         return true
     }
+
+    /**
+     * Чтение параметра из [SharedPreferences]
+     *
+     * @param key ключ
+     * @return прочитанная настройка. Если ничего нет, то пустая строка ""
+     * @since v1.0.0
+     * @author shadowsparky
+     */
     fun read(key: String) : String = preferences.getString(key, "")!!
 }
