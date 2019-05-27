@@ -4,8 +4,10 @@
 
 package ru.shadowsparky.screencast.extras
 
+import android.content.Context
 import android.graphics.Point
 import android.view.Display
+import android.view.WindowManager
 import java.io.ByteArrayInputStream
 
 /**
@@ -31,5 +33,12 @@ class DisplayUtils {
             outSize.x = display.width
             outSize.y = display.height
         }
+    }
+
+    fun getRefreshRating(context: Context) : Float {
+        val display = (context.getSystemService(Context.WINDOW_SERVICE) as WindowManager).defaultDisplay
+        val size = Point()
+        Injection.provideUtils().overrideGetSize(display, size)
+        return display.refreshRate
     }
 }

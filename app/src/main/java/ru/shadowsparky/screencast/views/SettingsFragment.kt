@@ -4,22 +4,22 @@
 
 package ru.shadowsparky.screencast.views
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings.*
 import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.custom_views.SettingsItem
 import ru.shadowsparky.screencast.dialogs.ChooseDialog
-import ru.shadowsparky.screencast.extras.Injection
-import ru.shadowsparky.screencast.extras.SettingsParser
-import ru.shadowsparky.screencast.extras.SharedUtils
-import ru.shadowsparky.screencast.extras.Toaster
+import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 import ru.shadowsparky.screencast.interfaces.Settingeable
+import kotlin.math.roundToInt
 
 /**
  * Фрагмент, используемый в настройках приложения
@@ -30,6 +30,7 @@ import ru.shadowsparky.screencast.interfaces.Settingeable
  * @property quality_list список возможного качества
  * @property framerate_list список возможного количества кадров в секунду
  * @property waiting_list список возможных значений для ожидания
+ * @property displayUtils подробнее: [DisplayUtils]
  * @see [Fragment]
  * @see [Settingeable]
  * @see [ChangeSettingsHandler]
@@ -38,6 +39,7 @@ import ru.shadowsparky.screencast.interfaces.Settingeable
  */
 class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
+    private val displayUtils = Injection.provideUtils()
     companion object {
         val BITRATE = listOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
         val quality_list = listOf("${BITRATE[0]} кб (Мин. качество)", "${BITRATE[1]} кб", "${BITRATE[2]} кб", "${BITRATE[3]} кб", "${BITRATE[4]} мб", "${BITRATE[5]} мб", "${BITRATE[6]} мб", "${BITRATE[7]} мб (Макс. качество)")
@@ -67,12 +69,7 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private fun attachSetting(choose: SettingsChoose) {
         val first = SettingsItem(context!!, settings_layout, choose, this)
         first.mSettingName.text = SettingsParser.getSectionName(choose)
-//        if (choose == SettingsChoose.PASSWORD) {
-//            val exists = shared.read(choose.name) != ""
-//            first.mCurrentSetting.text = if (exists) "Существует" else "Отсутствует"
-//        } else  {
-//            first.mCurrentSetting.text = shared.read(choose.name)
-//        }
+        first.mCurrentSetting.text = shared.read(choose.name)
     }
 
     override fun onSettingsChanged(choose: SettingsChoose, value: String) {
@@ -81,21 +78,13 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     }
 
     override fun onSettingChoosed(choose: SettingsChoose) {
-        when (choose) {
-            SettingsChoose.IMAGE_QUALITY -> {
-                val dialog = ChooseDialog(context!!, quality_list, this, choose)
-                dialog.show()
-            }
-            SettingsChoose.FRAMERATE -> {
-                val dialog = ChooseDialog(context!!, framerate_list, this, choose)
-                dialog.show()
-            }
-            SettingsChoose.WAITING -> {
-                val dialog = ChooseDialog(context!!, waiting_list, this, choose)
-                dialog.show()
-            }
-            else -> toast.show(context!!, "Данный раздел: ${choose.name} находится в разработке.")
+        val dialog = when (choose) {
+            SettingsChoose.IMAGE_QUALITY -> ChooseDialog(context!!, quality_list, this, choose)
+            SettingsChoose.FRAMERATE -> ChooseDialog(context!!, framerate_list, this, choose)
+            SettingsChoose.WAITING -> ChooseDialog(context!!, waiting_list, this, choose)
+            else -> throw RuntimeException("Unrecognized Choosing")
         }
+        dialog.show()
     }
 
     /**
@@ -105,9 +94,9 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
      * @since v1.0.0
      */
     fun initFramerate() {
-        var framerate = SettingsParser(context!!).getFramerate()
+        var framerate = displayUtils.getRefreshRating(context!!)
         while (framerate >= 1) {
-            framerate_list.add("$framerate")
+            framerate_list.add("${framerate.roundToInt()}")
             framerate -= 5
         }
         if (!framerate_list.contains("1"))
@@ -140,8 +129,6 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         settings_layout.addView(SettingsItem.generateNewSection("Настройка изображения", context!!))
         attachSetting(SettingsChoose.IMAGE_QUALITY)
         attachSetting(SettingsChoose.FRAMERATE)
-//        settings_layout.addView(SettingsItem.generateNewSection("Защита", context!!))
-//        attachSetting(SettingsChoose.PASSWORD)
         settings_layout.addView(SettingsItem.generateNewSection("Остальное", context!!))
         attachSetting(SettingsChoose.WAITING)
         settings_layout.addView(SettingsItem.generateCopyright("AVB Cast V1.2D", context!!))

@@ -82,7 +82,7 @@ class SharedUtils(val context: Context) {
      * Чтение параметра из [SharedPreferences]
      *
      * @param key ключ
-     * @return прочитанная настройка. Если ничего нет, то пустая строка ""
+     * @return прочитанный параметр. Если он пустой, то возвращается пустая строка
      * @since v1.0.0
      * @author shadowsparky
      */

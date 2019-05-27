@@ -9,6 +9,7 @@
     android:background="@color/colorAccent">
 
     <LinearLayout
+        android:layout_margin="16dp"
         android:id="@+id/settings_layout"
         android:background="@color/colorAccent"
         android:layout_width="match_parent"

@@ -21,7 +21,7 @@ import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_CHANNEL_
  * Полная поддержка [Build.VERSION_CODES.O] присутствует
  *
  * @param context текущий контекст [Context]
- * @param dismiss callback, срабатывающий при нажатии на кнопку "отключиться" в уведомлении
+ * @param dismiss обратный вызов, срабатывающий при нажатии на кнопку "отключиться" в уведомлении
  * @since v1.0.0
  * @author shadowsparky
  */
