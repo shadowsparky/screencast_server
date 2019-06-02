@@ -7,7 +7,7 @@ package ru.shadowsparky.screencast.adapters
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import ru.shadowsparky.screencast.views.MainFragment
+import ru.shadowsparky.screencast.views.MainView
 import ru.shadowsparky.screencast.views.SettingsFragment
 
 /**
@@ -31,7 +31,7 @@ class TabAdapter(
      */
     override fun getItem(position: Int): Fragment {
         val fragment: Fragment = when(position) {
-            0 -> MainFragment()
+            0 -> MainView()
             1 -> SettingsFragment()
             else -> throw NullPointerException("Unrecognized position $position")
         }

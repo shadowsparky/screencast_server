@@ -16,7 +16,7 @@ import ru.shadowsparky.screencast.extras.Constants
 import ru.shadowsparky.screencast.extras.Injection
 import ru.shadowsparky.screencast.interfaces.Main
 import ru.shadowsparky.screencast.models.MainModel
-import ru.shadowsparky.screencast.views.MainFragment
+import ru.shadowsparky.screencast.views.MainView
 import ru.shadowsparky.screencast.extras.Logger
 
 /**
@@ -30,7 +30,7 @@ import ru.shadowsparky.screencast.extras.Logger
  * @since v1.0.0
  * @author shadowsparky
  */
-class MainPresenter(private val view: MainFragment, private val model: Main.Model = MainModel()) : Main.Presenter {
+class MainPresenter(private val view: MainView, private val model: Main.Model = MainModel()) : Main.Presenter {
     private val TAG = "MainPresenter"
     private lateinit var binder: ProjectionService.ProjectionBinder
     private lateinit var mConnection: ServiceConnection
@@ -63,11 +63,11 @@ class MainPresenter(private val view: MainFragment, private val model: Main.Mode
 
     override fun onLaunchButtonClicked() {
         when(view.mCurrentStatus) {
-            MainFragment.ConnectionStatus.NONE -> { // если подключение не установлено
+            MainView.ConnectionStatus.NONE -> { // если подключение не установлено
                 view.sendCaptureRequest()
                 log.printDebug("Connection started", TAG)
             }
-            MainFragment.ConnectionStatus.CONNECTED -> { // если подключение уже установлено
+            MainView.ConnectionStatus.CONNECTED -> { // если подключение уже установлено
                 view.reset()
                 log.printDebug("Connection closed ${view.mCurrentStatus.name}", TAG)
             }
@@ -81,7 +81,7 @@ class MainPresenter(private val view: MainFragment, private val model: Main.Mode
         if (!result)
             view.reset() // если сервис не запустился, то происходит сброс
         else
-            view.setButtonStatus(MainFragment.ConnectionStatus.CONNECTED) // если сервис запустился, то статус изменяется на "подключен"
+            view.setButtonStatus(MainView.ConnectionStatus.CONNECTED) // если сервис запустился, то статус изменяется на "подключен"
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

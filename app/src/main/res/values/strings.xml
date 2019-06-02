@@ -4,4 +4,15 @@
     <string name="screen_expansion">Расширение экрана</string>
     <string name="image_quality">Качество изображения</string>
     <string name="framerate">Кол-во кадров</string>
+    <string name="address_already_in_use">Данный адрес уже используется</string>
+    <string name="waiting_for_connection">Ожидание подключения</string>
+    <string name="timeout">Превышено время ожидания</string>
+    <string name="unexpectedly_disconnected">Соединение неожиданно прервалось</string>
+    <string name="established">Соединение установлено</string>
+    <string name="broken">Соединение разорвано</string>
+    <string name="launch">Старт сервера</string>
+    <string name="disconnect">Отключиться</string>
+    <string name="setting_picture">Настройка изображения</string>
+    <string name="other">Остальное</string>
+    <string name="app_version">AVB Cast V1.3D</string>
 </resources>

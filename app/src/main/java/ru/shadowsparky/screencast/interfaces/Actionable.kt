@@ -5,12 +5,12 @@
 package ru.shadowsparky.screencast.interfaces
 
 import ru.shadowsparky.screencast.ServerBase
-import ru.shadowsparky.screencast.views.MainFragment
+import ru.shadowsparky.screencast.views.MainView
 
 /**
  * Обратный вызов [ServerBase.ConnectionResult]
  *
- * @sample [MainFragment]
+ * @sample [MainView]
  * @since v1.0.0
  * @author shadowsparky
  */

@@ -9,7 +9,7 @@ import android.content.ServiceConnection
 import kotlinx.coroutines.Job
 import ru.shadowsparky.screencast.ProjectionService
 import ru.shadowsparky.screencast.presenters.MainPresenter
-import ru.shadowsparky.screencast.views.MainFragment
+import ru.shadowsparky.screencast.views.MainView
 import ru.shadowsparky.screencast.models.MainModel
 
 /**
@@ -23,7 +23,7 @@ interface Main {
     /**
      * Методы представления
      *
-     * @sample [MainFragment]
+     * @sample [MainView]
      * @since v1.0.0
      * @author shadowsparky
      */
@@ -71,11 +71,11 @@ interface Main {
         /**
          * Установление статуса кнопки
          *
-         * @see [MainFragment.ConnectionStatus]
+         * @see [MainView.ConnectionStatus]
          * @since v1.0.0
          * @author shadowsparky
          */
-        fun setButtonStatus(status: MainFragment.ConnectionStatus)
+        fun setButtonStatus(status: MainView.ConnectionStatus)
 
         /**
          * Привязка сервиса к View

@@ -321,7 +321,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
      */
     open fun createServer() : Boolean {
         try {
-            mServer = ServerSocket(DEFAULT_PORT, 1)
+            mServer = ServerSocket(DEFAULT_PORT)
             mServer?.soTimeout = mSettingsParser.getWaiting()
         } catch (e: BindException) {
             action?.invoke(ConnectionResult.ADDRESS_ALREADY_IN_USE)
@@ -396,7 +396,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
      * @since v1.0.0
      */
     protected open fun configureMediaFormat() {
-        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_AVC, width, height)
+        mFormat = MediaFormat.createVideoFormat(MediaFormat.MIMETYPE_VIDEO_VP8, width, height)
         mFormat!!.setInteger(MediaFormat.KEY_BIT_RATE,mSettingsParser.getBitrate())
         mFormat!!.setInteger(MediaFormat.KEY_COLOR_FORMAT, MediaCodecInfo.CodecCapabilities.COLOR_FormatSurface)
         mFormat!!.setFloat(MediaFormat.KEY_FRAME_RATE, mSettingsParser.getFramerate().toFloat())
@@ -411,7 +411,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
      * @since v1.0.0
      */
     protected open fun configureMediaCodec() {
-        mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_AVC)
+        mCodec = MediaCodec.createEncoderByType(MediaFormat.MIMETYPE_VIDEO_VP8)
         mCallback = ProjectionCallback(this, mCodec!!)
         mCodec!!.setCallback(mCallback, Handler(mEncoderThread.looper))
         mCodec!!.configure(mFormat, null, null, MediaCodec.CONFIGURE_FLAG_ENCODE)

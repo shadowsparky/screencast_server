@@ -4,12 +4,10 @@
 
 package ru.shadowsparky.screencast.views
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings.*
 import ru.shadowsparky.screencast.R
@@ -19,6 +17,10 @@ import ru.shadowsparky.screencast.dialogs.ChooseDialog
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.interfaces.ChangeSettingsHandler
 import ru.shadowsparky.screencast.interfaces.Settingeable
+import ru.shadowsparky.screencast.views.SettingsFragment.Companion.BITRATE
+import ru.shadowsparky.screencast.views.SettingsFragment.Companion.framerate_list
+import ru.shadowsparky.screencast.views.SettingsFragment.Companion.quality_list
+import ru.shadowsparky.screencast.views.SettingsFragment.Companion.waiting_list
 import kotlin.math.roundToInt
 
 /**
@@ -94,13 +96,12 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
      * @since v1.0.0
      */
     fun initFramerate() {
+        framerate_list.clear()
         var framerate = displayUtils.getRefreshRating(context!!)
         while (framerate >= 1) {
             framerate_list.add("${framerate.roundToInt()}")
             framerate -= 5
         }
-        if (!framerate_list.contains("1"))
-            framerate_list.add("1")
     }
 
     /**
@@ -126,11 +127,11 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
      */
     private fun loadSetting() {
         settings_layout.removeAllViews()
-        settings_layout.addView(SettingsItem.generateNewSection("Настройка изображения", context!!))
+        settings_layout.addView(SettingsItem.generateNewSection(resources.getString(R.string.setting_picture), context!!))
         attachSetting(SettingsChoose.IMAGE_QUALITY)
         attachSetting(SettingsChoose.FRAMERATE)
-        settings_layout.addView(SettingsItem.generateNewSection("Остальное", context!!))
+        settings_layout.addView(SettingsItem.generateNewSection(resources.getString(R.string.other), context!!))
         attachSetting(SettingsChoose.WAITING)
-        settings_layout.addView(SettingsItem.generateCopyright("AVB Cast V1.2D", context!!))
+        settings_layout.addView(SettingsItem.generateCopyright(resources.getString(R.string.app_version), context!!))
     }
 }

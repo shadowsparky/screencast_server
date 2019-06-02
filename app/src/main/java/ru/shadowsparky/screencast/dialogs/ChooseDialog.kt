@@ -47,7 +47,6 @@ class ChooseDialog(
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.choose_dialog) // применение лейаута диалога
-        this.setCanceledOnTouchOutside(false) // отключение скрытия диалога при нажатии за диалог
         setting_list.choiceMode = ListView.CHOICE_MODE_SINGLE // выбрать можно только 1 вариант
         cancel_setting_button.setOnClickListener {
             this.dismiss() // при нажатии на "Отмена" диалог закрывается
