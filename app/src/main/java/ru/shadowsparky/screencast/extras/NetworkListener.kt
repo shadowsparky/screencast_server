@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
  * @property mAddr текущий ipv4 адрес
  * @property handler подробнее: [IpHandler]
  * @property manager менеджер событий свзязанных с сетью
- * @property networkChangeReceiver обработчик для устройств с версей Android M
+ * @property networkChangeReceiver обработчик для устройств с версей Android M и ниже
  * @property networkChangeListener обработчик для устройств с Android N и выше
  */
 class NetworkListener(private val context: Context) {
@@ -32,10 +32,11 @@ class NetworkListener(private val context: Context) {
     private val handler = Injection.provideIpHandler()
     private val manager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
-
     private val networkChangeReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            mAddr.value = handler.getIpv4()
+            GlobalScope.launch(Dispatchers.Main) {
+                mAddr.value = handler.getIpv4()
+            }
         }
     }
 

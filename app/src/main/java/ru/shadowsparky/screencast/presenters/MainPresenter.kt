@@ -55,10 +55,6 @@ class MainPresenter(private val view: MainView, private val model: Main.Model = 
         view.bindService(mConnection)
     }
 
-    override fun onFragmentLoaded() {
-        //view.setIPV4Text(model.getIpV4Request())
-    }
-
     override fun onFragmentDestroyed() {
         if (view.mBound) view.unbindService(mConnection)
     }

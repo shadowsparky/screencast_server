@@ -19,7 +19,6 @@ import ru.shadowsparky.screencast.interfaces.Main
  * @author shadowsparky
  */
 class MainModel : Main.Model {
-    override fun getIpV4Request() = Injection.provideIpHandler().getIpv4()
     override suspend fun launchService(mService: ProjectionService, data: Intent) = withContext(IO) {
         mService.launch(data)
     }

@@ -123,15 +123,6 @@ interface Main {
         fun onFragmentCreated()
 
         /**
-         * Вызывается каждый раз, когда фрагмент загружается
-         * Подробнее: вызов при запуске метода onStart в View
-         *
-         * @since v1.0.0
-         * @author shadowsparky
-         */
-        fun onFragmentLoaded()
-
-        /**
          * Вызывается 1 раз при уничтожении фрагмента
          * Подробнее: вызов при запуске метода onDestroy в View
          * @since v1.0.0
@@ -175,12 +166,6 @@ interface Main {
      * @author shadowsparky
      */
     interface Model {
-        /**
-         * @return Возвращает IpV4 адрес устройства
-         * @since v1.0.0
-         * @author shadowsparky
-         */
-        fun getIpV4Request() : String
 
         /**
          * Запуск сервиса [ProjectionService] для взятия данных с экрана
