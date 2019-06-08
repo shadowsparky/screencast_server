@@ -7,6 +7,8 @@ package ru.shadowsparky.screencast.presenters
 import android.content.ComponentName
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.ConnectivityManager
+import android.os.Build
 import android.os.IBinder
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.coroutines.GlobalScope
@@ -54,7 +56,7 @@ class MainPresenter(private val view: MainView, private val model: Main.Model = 
     }
 
     override fun onFragmentLoaded() {
-        view.setIPV4Text(model.getIpV4Request())
+        //view.setIPV4Text(model.getIpV4Request())
     }
 
     override fun onFragmentDestroyed() {

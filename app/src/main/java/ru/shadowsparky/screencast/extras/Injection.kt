@@ -79,4 +79,13 @@ object Injection {
      * @author shadowsparky
      */
     fun provideUtils() : DisplayUtils = DisplayUtils()
+
+    /**
+     * Инъекция класса [NetworkListener]
+     *
+     * @return новый экземпляр объекта [NetworkListener]
+     * @since v1.0.1
+     * @author shadowsparky
+     */
+    fun provideNetworkListener(context: Context) : NetworkListener = NetworkListener(context)
 }

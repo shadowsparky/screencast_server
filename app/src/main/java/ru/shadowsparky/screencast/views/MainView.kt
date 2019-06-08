@@ -13,6 +13,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import kotlinx.android.synthetic.main.fragment_main.*
 import ru.shadowsparky.screencast.ProjectionService
 import ru.shadowsparky.screencast.R
@@ -28,6 +29,7 @@ import ru.shadowsparky.screencast.interfaces.Main
 import ru.shadowsparky.screencast.interfaces.Actionable
 import ru.shadowsparky.screencast.presenters.MainPresenter
 import ru.shadowsparky.screencast.extras.Logger
+import ru.shadowsparky.screencast.extras.NetworkListener
 
 /**
  * View из MVP
@@ -53,6 +55,7 @@ class MainView : Fragment(), Actionable, Main.View {
     var mBound = false
     private val toast = Injection.provideToaster()
     var mCurrentStatus: ConnectionStatus = ConnectionStatus.NONE; private set
+    private lateinit var networkListener: NetworkListener
 
     /**
      * Статус текущего соединения
@@ -87,6 +90,7 @@ class MainView : Fragment(), Actionable, Main.View {
         if ((action != WAITING_FOR_CONNECTION) and (action != ESTABLISHED)) reset()
     }
 
+
     override fun reset() {
         mService.close()
         status.text = ""
@@ -116,6 +120,8 @@ class MainView : Fragment(), Actionable, Main.View {
                     resources.getString(R.string.disconnect)
         mCurrentStatus = status
     }
+
+//    private fun onNetworkChanged
 
     /**
      * Система вызывает этот метод при первом отображении пользовательского интерфейса фрагмента
@@ -148,7 +154,10 @@ class MainView : Fragment(), Actionable, Main.View {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mediaManager = context?.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
-        presenter.onFragmentCreated()
+        networkListener = Injection.provideNetworkListener(activity!!)
+        networkListener.mAddr.observe(this, Observer {
+            setIPV4Text(it)
+        })
     }
 
     override fun sendCaptureRequest() = startActivityForResult(mediaManager.createScreenCaptureIntent(), Constants.REQUEST_CODE)
@@ -204,6 +213,16 @@ class MainView : Fragment(), Actionable, Main.View {
             status.text = savedInstanceState.getString(STATUS)
             capRequest.text = savedInstanceState.getString(CAPREQUEST)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        networkListener.bindNetworkCallback()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        networkListener.unbindNetworkCallback()
     }
 
     /**
