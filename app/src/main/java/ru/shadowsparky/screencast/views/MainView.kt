@@ -170,7 +170,7 @@ class MainView : Fragment(), Actionable, Main.View {
      */
     override fun onStart() {
         super.onStart()
-        presenter.onFragmentLoaded()
+//        presenter.onFragmentLoaded()
         capRequest.setOnClickListener { presenter.onLaunchButtonClicked() }
     }
 
