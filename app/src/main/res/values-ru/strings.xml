@@ -4,7 +4,7 @@
   -->
 
 <resources>
-    <string name="app_name">Screencast</string>
+    <string name="app_name">AVB Cast</string>
     <string name="app_version">AVB Cast 1.4.4 Build</string>
     <string name="address_already_in_use">Данный адрес уже используется</string>
     <string name="image_quality">Качество изображения</string>

@@ -87,7 +87,7 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
             llp.setMargins(16, 30, 16, 16)
             result.layoutParams = llp
             result.setOnClickListener {
-                Injection.provideToaster().show(context, "v1.0.1 DEV")
+                Injection.provideToaster().show(context, "^-^")
             }
             return result
         }

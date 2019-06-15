@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Screencast</string>
+    <string name="app_name">AVB Cast</string>
     <string name="set_quality">Image Adjustment</string>
     <string name="screen_expansion">Screen resolution</string>
     <string name="image_quality">Image quality</string>
