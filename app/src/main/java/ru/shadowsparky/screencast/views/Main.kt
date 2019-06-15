@@ -30,8 +30,8 @@ class Main : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        tab_layout.addTab(tab_layout.newTab().setText("Главное меню"))
-        tab_layout.addTab(tab_layout.newTab().setText("Настройки"))
+        tab_layout.addTab(tab_layout.newTab().setText(getString(R.string.main_menu)))
+        tab_layout.addTab(tab_layout.newTab().setText(getString(R.string.settings)))
         tab_layout.tabGravity = GRAVITY_FILL
         val adapter = TabAdapter(supportFragmentManager, tab_layout.tabCount)
         pager.adapter = adapter

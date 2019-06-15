@@ -26,6 +26,8 @@ import android.view.Surface
 import android.view.WindowManager
 import androidx.fragment.app.Fragment
 import com.google.protobuf.ByteString
+import com.google.protobuf.CodedInputStream
+import com.google.protobuf.CodedOutputStream
 import ru.shadowsparky.screencast.extras.*
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
@@ -36,7 +38,9 @@ import ru.shadowsparky.screencast.interfaces.Actionable
 import ru.shadowsparky.screencast.interfaces.Sendeable
 import ru.shadowsparky.screencast.proto.HandledPictureOuterClass
 import ru.shadowsparky.screencast.proto.PreparingDataOuterClass
+import java.io.BufferedOutputStream
 import java.io.Closeable
+import java.io.OutputStream
 import java.net.*
 
 /**
@@ -273,6 +277,8 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         }
     }
 
+    private var stream: OutputStream? = null
+
     /**
      * Вызывается системой каждый раз, когда клиент явно запускает службу, вызывая Context.startService (Intent),
      * предоставляя предоставленные им аргументы и уникальный целочисленный токен, представляющий запрос на запуск.
@@ -323,6 +329,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
         try {
             mServer = ServerSocket(DEFAULT_PORT)
             mServer?.soTimeout = mSettingsParser.getWaiting()
+
         } catch (e: BindException) {
             action?.invoke(ConnectionResult.ADDRESS_ALREADY_IN_USE)
             return false
@@ -346,6 +353,10 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
             mClient = mServer?.accept()
             mClient?.tcpNoDelay = true
             handling = true
+            mClient?.sendBufferSize = 50000
+            mClient?.receiveBufferSize = 50000
+            mServer?.receiveBufferSize = 50000
+            stream = mClient?.getOutputStream()
         } catch (e: SocketTimeoutException) {
             action?.invoke(ConnectionResult.TIMEOUT)
             return false
@@ -444,8 +455,10 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
      */
     open fun start() {
         mCodec!!.start()
+        val metrics = resources.displayMetrics
+        val densityDpi = (metrics.density * 160f).toInt()
         mCallback!!.handling = true
-        mVirtualDisplay = mProjection!!.createVirtualDisplay(Constants.DEFAULT_PROJECTION_NAME, width, height, Constants.DEFAULT_DPI, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mSurface, null, Handler(mEncoderThread.looper))
+        mVirtualDisplay = mProjection!!.createVirtualDisplay(getString(R.string.projection_name), width, height, densityDpi, DisplayManager.VIRTUAL_DISPLAY_FLAG_AUTO_MIRROR, mSurface, null, Handler(mEncoderThread.looper))
     }
 
     /**
@@ -499,7 +512,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
             val item = HandledPictureOuterClass.HandledPicture.newBuilder()
                     .setEncodedPicture(ByteString.copyFrom(picture))
                     .build()
-            item.writeDelimitedTo(mClient?.getOutputStream())
+            item.writeDelimitedTo(stream)
         } catch (e: SocketException) {
             action?.invoke(ConnectionResult.BROKEN)
         }
@@ -520,7 +533,7 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
                     .setHeight(height)
                     .setPassword("")
                     .build()
-            data.writeDelimitedTo(mClient?.getOutputStream())
+            data.writeDelimitedTo(stream)
         } catch (e: SocketException) {
             action?.invoke(ConnectionResult.BROKEN)
         }

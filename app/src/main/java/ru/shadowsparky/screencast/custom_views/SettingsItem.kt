@@ -67,6 +67,7 @@ class SettingsItem(context: Context, parent: LinearLayout, choosed_item: Setting
             val llp = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT)
             llp.setMargins(16, 16, 16, 16)
             result.layoutParams = llp
+
             return result
         }
 

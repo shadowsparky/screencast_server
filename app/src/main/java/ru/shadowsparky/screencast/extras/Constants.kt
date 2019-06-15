@@ -18,7 +18,7 @@ object Constants {
     const val DEFAULT_NOTIFICATION_ID = 228
     const val DEFAULT_WIDTH = 1280
     const val DEFAULT_HEIGHT = 720
-    const val DEFAULT_DPI = 320
+    const val DEFAULT_DPI = 500
     const val DEFAULT_BITRATE = 1000000
     const val DEFAULT_PROJECTION_NAME = "Проецирование <Без Обид>"
     const val CAPREQUEST = "CAPREQUEST"

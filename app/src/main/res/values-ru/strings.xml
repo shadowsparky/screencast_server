@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Created by shadowsparky in 2019
+  -->
+
+<resources>
+    <string name="app_name">Screencast</string>
+    <string name="app_version">AVB Cast 1.4.4 Build</string>
+    <string name="address_already_in_use">Данный адрес уже используется</string>
+    <string name="image_quality">Качество изображения</string>
+    <string name="framerate">Кол-во кадров</string>
+    <string name="set_quality">Настройка изображения</string>
+    <string name="setting_picture">Настройка изображения</string>
+    <string name="waiting_for_connection">Ожидание подключения</string>
+    <string name="other">Остальное</string>
+    <string name="disconnect">Отключиться</string>
+    <string name="timeout">Превышено время ожидания</string>
+    <string name="projection_name">Проецирование (без обид)</string>
+    <string name="screen_expansion">Разрешение экрана</string>
+    <string name="unexpectedly_disconnected">Соединение неожиданно прервалось</string>
+    <string name="broken">Соединение разорвано</string>
+    <string name="established">Соединение установлено</string>
+    <string name="launch">Старт сервера</string>
+    <string name="waiting">Ожидание</string>
+    <string name="bitrate">Битрейт</string>
+    <string name="main_menu">Главное Меню</string>
+    <string name="settings">Настройки</string>
+    <string name="kb">кб</string>
+    <string name="seconds">секунд</string>
+    <string name="min_quality">Мин. качество</string>
+    <string name="max_quality">Макс. качество</string>
+    <string name="mb">мб</string>
+    <string name="password">Пароль</string>
+</resources>

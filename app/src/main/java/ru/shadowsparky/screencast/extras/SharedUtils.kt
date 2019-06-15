@@ -9,6 +9,7 @@ import android.content.Context.MODE_PRIVATE
 import android.content.SharedPreferences
 import android.graphics.Point
 import android.view.WindowManager
+import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.views.SettingsFragment
 
@@ -33,13 +34,15 @@ class SharedUtils(val context: Context) {
         val size = Point()
         Injection.provideUtils().overrideGetSize(display, size)
         val refreshRating = display.refreshRate
-        if (read(SettingsChoose.IMAGE_QUALITY.name) == "")
+        val quality = read(SettingsChoose.IMAGE_QUALITY.name)
+        if ((quality == "") or (!quality.contains(context.getString(R.string.mb))) and (!quality.contains(context.getString(R.string.kb))))
             write(SettingsChoose.IMAGE_QUALITY.name, SettingsFragment.quality_list[3])
         if (read(SettingsChoose.EXPANSION.name) == "")
             write(SettingsChoose.EXPANSION.name, "${size.y}:${size.x}")
         if (read(SettingsChoose.FRAMERATE.name) == "")
             write(SettingsChoose.FRAMERATE.name, "${Math.round(refreshRating)}")
-        if (read(SettingsChoose.WAITING.name) == "")
+        val waiting = read(SettingsChoose.WAITING.name)
+        if ((waiting == "") or (!waiting.contains(context.getString(R.string.seconds))))
             write(SettingsChoose.WAITING.name, SettingsFragment.waiting_list[2])
     }
 

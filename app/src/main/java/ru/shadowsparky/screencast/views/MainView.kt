@@ -155,6 +155,7 @@ class MainView : Fragment(), Actionable, Main.View {
         super.onCreate(savedInstanceState)
         mediaManager = context?.getSystemService(Context.MEDIA_PROJECTION_SERVICE) as MediaProjectionManager
         networkListener = Injection.provideNetworkListener(activity!!)
+        presenter.onFragmentCreated()
         networkListener.mAddr.observe(this, Observer {
             setIPV4Text(it)
         })

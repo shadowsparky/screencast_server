@@ -51,7 +51,7 @@ class ChooseDialog(
         cancel_setting_button.setOnClickListener {
             this.dismiss() // при нажатии на "Отмена" диалог закрывается
         }
-        choosed_section.text = SettingsParser.getSectionName(choose) // получение названия секции
+        choosed_section.text = SettingsParser.getSectionName(choose, context) // получение названия секции
         val adapter = ArrayAdapter<String>(context, android.R.layout.simple_list_item_1, values) // генерация адаптера с заданными значениями
         setting_list.adapter = adapter // применение адаптера
         setting_list.setOnItemClickListener { parent, view, position, id ->

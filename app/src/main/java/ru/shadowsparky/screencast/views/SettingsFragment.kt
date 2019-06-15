@@ -4,12 +4,16 @@
 
 package ru.shadowsparky.screencast.views
 
+import android.app.Application
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import kotlinx.android.synthetic.main.fragment_settings.*
+import ru.shadowsparky.screencast.App
 import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.custom_views.SettingsItem
@@ -21,6 +25,8 @@ import ru.shadowsparky.screencast.views.SettingsFragment.Companion.BITRATE
 import ru.shadowsparky.screencast.views.SettingsFragment.Companion.framerate_list
 import ru.shadowsparky.screencast.views.SettingsFragment.Companion.quality_list
 import ru.shadowsparky.screencast.views.SettingsFragment.Companion.waiting_list
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.roundToInt
 
 /**
@@ -42,11 +48,32 @@ import kotlin.math.roundToInt
 class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
     private val toast = Injection.provideToaster()
     private val displayUtils = Injection.provideUtils()
+
     companion object {
-        val BITRATE = listOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
-        val quality_list = listOf("${BITRATE[0]} кб (Мин. качество)", "${BITRATE[1]} кб", "${BITRATE[2]} кб", "${BITRATE[3]} кб", "${BITRATE[4]} мб", "${BITRATE[5]} мб", "${BITRATE[6]} мб", "${BITRATE[7]} мб (Макс. качество)")
-        val framerate_list = ArrayList<String>()
-        val waiting_list = listOf("5 секунд", "15 секунд", "30 секунд", "60 секунд")
+        var BITRATE = ArrayList<Int>(); private set
+        var quality_list = ArrayList<String>(); private set
+        var framerate_list = ArrayList<String>(); private set
+        var waiting_list = ArrayList<String>(); private set
+
+        fun initialize(context: Context) {
+            BITRATE = arrayListOf(64, 128, 256, 512, 1, 3, 6, 10, -1)
+            quality_list = arrayListOf (
+                "${BITRATE[0]} ${context.getString(R.string.kb)} (${context.getString(R.string.min_quality)})",
+                "${BITRATE[1]} ${context.getString(R.string.kb)}",
+                "${BITRATE[2]} ${context.getString(R.string.kb)}",
+                "${BITRATE[3]} ${context.getString(R.string.kb)}",
+                "${BITRATE[4]} ${context.getString(R.string.mb)}",
+                "${BITRATE[5]} ${context.getString(R.string.mb)}",
+                "${BITRATE[6]} ${context.getString(R.string.mb)}",
+                "${BITRATE[7]} ${context.getString(R.string.mb)} (${context.getString(R.string.max_quality)})"
+            )
+            waiting_list = arrayListOf(
+                    "5 ${context.getString(R.string.seconds)}",
+                    "15 ${context.getString(R.string.seconds)}",
+                    "30 ${context.getString(R.string.seconds)}",
+                    "60 ${context.getString(R.string.seconds)}"
+            )
+        }
     }
     private lateinit var shared: SharedUtils
 
@@ -70,8 +97,12 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
      */
     private fun attachSetting(choose: SettingsChoose) {
         val first = SettingsItem(context!!, settings_layout, choose, this)
-        first.mSettingName.text = SettingsParser.getSectionName(choose)
+        first.mSettingName.text = SettingsParser.getSectionName(choose, context!!)
         first.mCurrentSetting.text = shared.read(choose.name)
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
     }
 
     override fun onSettingsChanged(choose: SettingsChoose, value: String) {
@@ -113,6 +144,7 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
      */
     override fun onStart() {
         super.onStart()
+        initialize(context!!)
         shared = Injection.provideSharedUtils(context!!)
         shared.initialize()
         initFramerate()

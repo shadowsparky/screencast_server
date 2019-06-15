@@ -5,6 +5,7 @@
 package ru.shadowsparky.screencast.extras
 
 import android.content.Context
+import ru.shadowsparky.screencast.R
 import ru.shadowsparky.screencast.SettingsChoose
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_BITRATE
 import ru.shadowsparky.screencast.views.SettingsFragment
@@ -17,7 +18,7 @@ import ru.shadowsparky.screencast.views.SettingsFragment
  * @since v1.0.0
  * @author shadowsparky
  */
-class SettingsParser(context: Context) {
+class SettingsParser(private val context: Context) {
     private val shared = Injection.provideSharedUtils(context)
 
     companion object {
@@ -27,13 +28,13 @@ class SettingsParser(context: Context) {
          * @since v1.0.0
          * @author shadowsparky
          */
-        fun getSectionName(choose: SettingsChoose): String {
+        fun getSectionName(choose: SettingsChoose, context: Context): String {
             return when (choose) {
-                SettingsChoose.IMAGE_QUALITY -> "Битрейт"
-                SettingsChoose.EXPANSION -> "Расширение"
-                SettingsChoose.FRAMERATE -> "Кадров в секунду"
-                SettingsChoose.PASSWORD -> "Пароль"
-                SettingsChoose.WAITING -> "Ожидание"
+                SettingsChoose.IMAGE_QUALITY -> context.getString(R.string.bitrate)
+                SettingsChoose.EXPANSION -> context.getString(R.string.screen_expansion)
+                SettingsChoose.FRAMERATE -> context.getString(R.string.framerate)
+                SettingsChoose.PASSWORD -> context.getString(R.string.password)
+                SettingsChoose.WAITING -> context.getString(R.string.waiting)
             }
         }
     }
@@ -88,7 +89,7 @@ class SettingsParser(context: Context) {
      * @since v1.0.0
      * @author shadowsparky
      */
-    fun getWaiting() : Int = parseValue(SettingsChoose.WAITING, " секунд").toInt() * 1000
+    fun getWaiting() : Int = parseValue(SettingsChoose.WAITING, " ").toInt() * 1000
 
     /**
      * Удобный метод для парсинга
