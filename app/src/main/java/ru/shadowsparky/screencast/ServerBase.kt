@@ -29,6 +29,7 @@ import com.google.protobuf.ByteString
 import com.google.protobuf.CodedInputStream
 import com.google.protobuf.CodedOutputStream
 import ru.shadowsparky.screencast.extras.*
+import ru.shadowsparky.screencast.extras.Constants.DEFAULT_DPI
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_HEIGHT
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_NOTIFICATION_ID
 import ru.shadowsparky.screencast.extras.Constants.DEFAULT_PORT
@@ -353,9 +354,9 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
             mClient = mServer?.accept()
             mClient?.tcpNoDelay = true
             handling = true
-            mClient?.sendBufferSize = 50000
-            mClient?.receiveBufferSize = 50000
-            mServer?.receiveBufferSize = 50000
+//            mClient?.sendBufferSize = 50000
+//            mClient?.receiveBufferSize = 50000
+//            mServer?.receiveBufferSize = 50000
             stream = mClient?.getOutputStream()
         } catch (e: SocketTimeoutException) {
             action?.invoke(ConnectionResult.TIMEOUT)

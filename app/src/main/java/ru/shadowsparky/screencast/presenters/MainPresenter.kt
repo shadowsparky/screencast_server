@@ -56,7 +56,10 @@ class MainPresenter(private val view: MainView, private val model: Main.Model = 
     }
 
     override fun onFragmentDestroyed() {
-        if (view.mBound) view.unbindService(mConnection)
+        if (view.mBound) {
+            view.unbindService(mConnection)
+
+        }
     }
 
     override fun onLaunchButtonClicked() {

@@ -142,6 +142,7 @@ class MainView : Fragment(), Actionable, Main.View {
     }
 
     override fun unbindService(connection: ServiceConnection) {
+        mService.close()
         activity?.applicationContext?.unbindService(connection)
     }
 
