@@ -79,5 +79,9 @@ class ProjectionCallback(
      */
     override fun onError(codec: MediaCodec, e: MediaCodec.CodecException) {
         Log.d(TAG,"OnError")
+        /*
+            Здесь пусто, потому что я прочитал, что игнорирование исключений - это хороший тон.
+            (прочитал в интернете, естественно)
+         */
     }
 }

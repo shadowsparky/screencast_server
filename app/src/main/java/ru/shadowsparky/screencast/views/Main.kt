@@ -6,7 +6,6 @@ package ru.shadowsparky.screencast.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.GRAVITY_FILL
 import kotlinx.android.synthetic.main.activity_main.*

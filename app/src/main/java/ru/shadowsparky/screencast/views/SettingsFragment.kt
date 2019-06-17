@@ -101,10 +101,6 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
         first.mCurrentSetting.text = shared.read(choose.name)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-    }
-
     override fun onSettingsChanged(choose: SettingsChoose, value: String) {
         shared.write(choose.name, value)
         loadSetting()
@@ -115,7 +111,7 @@ class SettingsFragment : Fragment(), Settingeable, ChangeSettingsHandler {
             SettingsChoose.IMAGE_QUALITY -> ChooseDialog(context!!, quality_list, this, choose)
             SettingsChoose.FRAMERATE -> ChooseDialog(context!!, framerate_list, this, choose)
             SettingsChoose.WAITING -> ChooseDialog(context!!, waiting_list, this, choose)
-            else -> throw RuntimeException("Unrecognized Choosing")
+            else -> throw RuntimeException("Unrecognized Choosing") // так не бывает
         }
         dialog.show()
     }

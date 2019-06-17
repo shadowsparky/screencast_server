@@ -121,8 +121,6 @@ class MainView : Fragment(), Actionable, Main.View {
         mCurrentStatus = status
     }
 
-//    private fun onNetworkChanged
-
     /**
      * Система вызывает этот метод при первом отображении пользовательского интерфейса фрагмента
      * на дисплее. Для прорисовки пользовательского интерфейса фрагмента следует возвратить из

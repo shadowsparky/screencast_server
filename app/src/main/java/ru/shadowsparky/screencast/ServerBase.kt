@@ -18,6 +18,7 @@ import android.media.MediaCodecInfo
 import android.media.MediaFormat
 import android.media.projection.MediaProjection
 import android.media.projection.MediaProjectionManager
+import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
 import android.os.Process
@@ -251,7 +252,11 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
      * @see [HandlerThread]
      * @since v1.0.0
      */
-    private var mEncoderThread = HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
+    private var mEncoderThread = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        HandlerThread("EncoderThread", Process.THREAD_PRIORITY_VIDEO)
+    } else {
+        HandlerThread("EncoderThread", Process.THREAD_PRIORITY_URGENT_DISPLAY)
+    }
 
     /**
      * @see [Actionable]
@@ -354,9 +359,6 @@ abstract class ServerBase : Service(), Sendeable, Closeable {
             mClient = mServer?.accept()
             mClient?.tcpNoDelay = true
             handling = true
-//            mClient?.sendBufferSize = 50000
-//            mClient?.receiveBufferSize = 50000
-//            mServer?.receiveBufferSize = 50000
             stream = mClient?.getOutputStream()
         } catch (e: SocketTimeoutException) {
             action?.invoke(ConnectionResult.TIMEOUT)

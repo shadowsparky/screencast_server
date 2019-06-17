@@ -58,7 +58,6 @@ class MainPresenter(private val view: MainView, private val model: Main.Model = 
     override fun onFragmentDestroyed() {
         if (view.mBound) {
             view.unbindService(mConnection)
-
         }
     }
 
@@ -92,7 +91,7 @@ class MainPresenter(private val view: MainView, private val model: Main.Model = 
                 view.setLoading(true)
                 onLaunchServiceRequest(data!!)
             } else
-                view.showToast("Вы не выдали разрешение, я не буду работать.")
+                view.showToast("Вы не выдали разрешение, я не буду работать.") // а так бывает...
         }
     }
 }
